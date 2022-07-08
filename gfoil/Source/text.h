@@ -6,10 +6,14 @@
 #include <unordered_map>
 #include <memory>
 
+#include <climits>
+
 #include <glm/glm.hpp>
 
 #include "system/system.h"
 #include "graphics/font.h"
+
+#include "byte_vector.h"
 
 /*
 Text Rendering Example:
@@ -46,100 +50,92 @@ Text Rendering Example:
 
 */
 
-namespace gfoil {
+class text {
+public:
 
-	typedef std::vector<uint8_t> byte_vector;
+	// ----==== Members ====----
 
-	extern std::string byte_vector_to_string(byte_vector input);
+	std::string string = "";
 
-	class text {
-	public:
+	// render info
+	glm::vec2 position = glm::vec2(0, 0);   // screen coords in pixels, top left of text
+	glm::vec2 spacing = glm::vec2(0, 0);   // in pixels
+	float scale = 1.0f;                   // also scales spacing
 
-		// ----==== Members ====----
+	unsigned int line_start = 0;
+	unsigned int line_limit = 200;
 
-		std::string string = "";
+	unsigned int line_char_start = 0;
+	unsigned int line_char_limit = 200;
 
-		// render info
-		glm::vec2 position = glm::vec2(0, 0);   // screen coords in pixels, top left of text
-		glm::vec2 spacing = glm::vec2(0, 0);   // in pixels
-		float scale = 1.0f;                   // also scales spacing
+	font* font = nullptr;
 
-		unsigned int line_start = 0;
-		unsigned int line_limit = -1;
+	std::vector<vertex::tint> buffer_data;
 
-		unsigned int line_char_start = 0;
-		unsigned int line_char_limit = -1;
+	// ----==== Constructors / Deconstructor ====----
 
-		gfoil::font* font = nullptr;
+	text();
 
-		std::vector<tint_vertex> buffer_data;
+	text(const std::string& input);
+	text(const char* input);
+	text(const byte_vector& input);
+	text(std::vector<text>& input);
 
-		// ----==== Constructors / Deconstructor ====----
+	~text();
 
-		text();
+	// ----==== Operator Overloaders ====----
 
-		text(const std::string& input);
-		text(const char* input);
-		text(const byte_vector& input);
-		text(std::vector<text>& input);
+	void operator = (const std::string& input);
+	void operator = (const char* input);
+	void operator = (const byte_vector& input);
+	void operator = (std::vector<text>& input);
 
-		~text();
+	void operator += (const text& input);
+	bool operator == (const text& input);
+	bool operator != (const text& input);
 
-		// ----==== Operator Overloaders ====----
+	std::string operator + (const text& input);
 
-		void operator = (const std::string& input);
-		void operator = (const char* input);
-		void operator = (const byte_vector& input);
-		void operator = (std::vector<text>& input);
+	operator std::string();
 
-		void operator += (const text& input);
-		bool operator == (const text& input);
-		bool operator != (const text& input);
+	char& operator [](int index);
 
-		std::string operator + (const text& input);
+	// ----==== Methods ====----
 
-		operator std::string();
+	int size();
+	void clear();
 
-		char& operator [](int index);
+	byte_vector to_byte_vector();
 
-		// ----==== Methods ====----
+	// returns segments of this text, split by a target character
+	void split(std::vector<text>& output, char delimiter);
 
-		int size();
-		void clear();
+	/// returns a string of characters following the final '.' to the end of the text, useful for getting file exstensions.
+	/// returns an empty string if there is no '.'
+	std::string stem();
 
-		byte_vector to_byte_vector();
+	// returns the number of times the target character occurs in the text
+	int char_count(char target);
 
-		// returns segments of this text, split by a target character
-		void split(std::vector<text>& output, char delimiter);
+	// returns indices to the beginnings of all occurrences of the target sub string.
+	void contains(std::vector<int>& output, std::string& target);
+	bool contains(const std::string& target);
 
-		/// returns a string of characters following the final '.' to the end of the text, useful for getting file exstensions.
-		/// returns an empty string if there is no '.'
-		std::string stem();
+	// ----==== Rendering ====----
 
-		// returns the number of times the target character occurs in the text
-		int char_count(char target);
+	/// Builds the render data that is used to draw the text. If the text, font, position, or spacing 
+	/// have been changed this needs to be called before to the next draw to reflect that.
+	void build_buffer();
 
-		// returns indices to the beginnings of all occurrences of the target sub string.
-		void contains(std::vector<int>& output, std::string& target);
-		bool contains(const std::string& target);
+	void unembed_color_codes();
+	void embed_color_codes();
 
-		// ----==== Rendering ====----
+	void draw(glm::ivec2& window_size);
 
-		/// Builds the render data that is used to draw the text. If the text, font, position, or spacing 
-		/// have been changed this needs to be called before to the next draw to reflect that.
-		void build_buffer();
+private:
 
-		void unembed_color_codes();
-		void embed_color_codes();
-
-		void draw(glm::ivec2& window_size);
-
-	private:
-		
-		// index, color
-		std::unordered_map<int, glm::vec3> color_codes;
-		bool color_codes_embedded = true;
-
-	};
+	// index, color
+	std::unordered_map<int, glm::vec3> color_codes;
+	bool color_codes_embedded = true;
 
 };

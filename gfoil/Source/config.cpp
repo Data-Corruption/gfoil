@@ -1,11 +1,16 @@
 #include "config.h"
 
-#include "../system/system.h"
-#include "../text.h"
+#include "system/system.h"
 
-void gfoil::load_config() {
-	if (!system::files::exists(config_path))
+#include "text.h"
+
+std::unordered_map<std::string, std::string> config::data;
+
+void config::load_config() {
+	if (!system::files::exists(config_path)) {
+		system::log::warn("Config file not found, generating default one.");
 		system::files::write(default_config, config_path);
+	}
 
 	text unparsed_config;
 	system::files::read(unparsed_config.string, config_path);
@@ -13,17 +18,16 @@ void gfoil::load_config() {
 	// parse data
 	std::vector<text> lines, key_value_pair;
 	unparsed_config.split(lines, '\n');
-	
+
 	for (auto& line : lines) {
 		line.split(key_value_pair, ':');
-		config[key_value_pair[0].string] = key_value_pair[1].string;
+		data[key_value_pair[0].string] = key_value_pair[1].string;
 	}
 }
-
-void gfoil::save_config() {
+void config::save_config() {
 	std::string result = "";
 
-	for (auto& entry : config)
+	for (auto& entry : data)
 		result.append(entry.first + ':' + entry.second + '\n');
 	result.pop_back();
 

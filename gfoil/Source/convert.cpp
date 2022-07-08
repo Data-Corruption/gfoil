@@ -1,6 +1,6 @@
 #include "convert.h"
 
-std::string gfoil::convert::utf16_to_utf8(const std::wstring& wstring) {
+std::string convert::utf16_to_utf8(const std::wstring& wstring) {
 	if (wstring.empty())
 		return std::string();
 
@@ -11,7 +11,7 @@ std::string gfoil::convert::utf16_to_utf8(const std::wstring& wstring) {
 	return result;
 }
 
-std::wstring gfoil::convert::utf8_to_utf16(const std::string& string) {
+std::wstring convert::utf8_to_utf16(const std::string& string) {
 	if (string.empty())
 		return std::wstring();
 
@@ -22,10 +22,10 @@ std::wstring gfoil::convert::utf8_to_utf16(const std::string& string) {
 	return result;
 }
 
-glm::vec3 gfoil::convert::hex_color_to_vec3(const std::string& hex) {
-	
+glm::vec3 convert::hex_color_to_vec3(const std::string& hex) {
+	return glm::vec3(0.0, 0.0, 0.0);
 }
 
-std::string gfoil::convert::vec3_color_to_hex_string(glm::vec3& color) {
-
+std::string convert::vec3_color_to_hex_string(glm::vec3& color) {
+	return "";
 }

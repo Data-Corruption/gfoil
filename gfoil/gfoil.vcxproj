@@ -126,6 +126,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\deps\GLFW\Include;$(SolutionDir)\deps\Glad\Include;$(SolutionDir)\deps\GLM\Include;$(SolutionDir)\deps\Freetype\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -133,11 +134,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)\deps\GLFW\Libs;$(SolutionDir)\deps\Freetype\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "C:\Users\mrmat\Desktop\Code\gfoil\build_include.ps1"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -151,6 +155,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\deps\GLFW\Include;$(SolutionDir)\deps\Glad\Include;$(SolutionDir)\deps\GLM\Include;$(SolutionDir)\deps\Freetype\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -160,13 +165,17 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)\deps\GLFW\Libs;$(SolutionDir)\deps\Freetype\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "C:\Users\mrmat\Desktop\Code\gfoil\build_include.ps1"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\byte_vector.h" />
     <ClInclude Include="Source\graphics\buffer.h" />
     <ClInclude Include="Source\graphics\buffer_array_object.h" />
     <ClInclude Include="Source\graphics\generic_batch_renderer.h" />
@@ -174,29 +183,34 @@
     <ClInclude Include="Source\graphics\shader.h" />
     <ClInclude Include="Source\graphics\stb_image.h" />
     <ClInclude Include="Source\graphics\texture.h" />
+    <ClInclude Include="Source\graphics\vertex.h" />
     <ClInclude Include="Source\graphics\window.h" />
-    <ClInclude Include="Source\system\keyboard.h" />
-    <ClInclude Include="Source\utilities\config.h" />
-    <ClInclude Include="Source\utilities\convert.h" />
+    <ClInclude Include="Source\config.h" />
+    <ClInclude Include="Source\system\device_input.h" />
+    <ClInclude Include="Source\convert.h" />
     <ClInclude Include="Source\gfoil.h" />
     <ClInclude Include="Source\system\system.h" />
     <ClInclude Include="Source\graphics\font.h" />
+    <ClInclude Include="Source\system\Win64\CDialogEventHandler.h" />
     <ClInclude Include="Source\text.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\deps\Glad\src\glad.c" />
+    <ClCompile Include="Source\byte_vector.cpp" />
+    <ClCompile Include="Source\config.cpp" />
     <ClCompile Include="Source\gfoil.cpp" />
-    <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\graphics\buffer.cpp" />
     <ClCompile Include="Source\graphics\buffer_array_object.cpp" />
     <ClCompile Include="Source\graphics\generic_batch_renderer.cpp" />
+    <ClCompile Include="Source\graphics\generic_index_buffers.cpp" />
     <ClCompile Include="Source\graphics\shader.cpp" />
     <ClCompile Include="Source\graphics\texture.cpp" />
     <ClCompile Include="Source\graphics\window.cpp" />
-    <ClCompile Include="Source\system\keyboard.cpp" />
+    <ClCompile Include="Source\system\device_input.cpp" />
     <ClCompile Include="Source\system\system.cpp" />
-    <ClCompile Include="Source\utilities\config.cpp" />
-    <ClCompile Include="Source\utilities\convert.cpp" />
+    <ClCompile Include="Source\convert.cpp" />
     <ClCompile Include="Source\graphics\font.cpp" />
+    <ClCompile Include="Source\system\Win64\CDialogEventHandler.cpp" />
     <ClCompile Include="Source\text.cpp" />
   </ItemGroup>
   <ItemGroup>

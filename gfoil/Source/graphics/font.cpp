@@ -4,7 +4,11 @@
 
 #include "generic_index_buffers.h"
 
-void gfoil::font::load(std::string path, bool is_3d) {
+#include "../gfoil.h"
+
+void font::load(std::string path, bool is_3d) {
+
+	path = "app/fonts/" + path;
 
 	if (this->is_loaded)
 		this->unload();
@@ -15,7 +19,7 @@ void gfoil::font::load(std::string path, bool is_3d) {
 	this->char_size = glm::uvec2(atlas_size.x / 95, atlas_size.y);
 
 	// generate batch renderer
-	this->renderer.generate(4000, primative_type::TRIANGLES, vertex_type::TINTED, generic_index_buffers::quad_1k.id, 4, 6, false);
+	this->renderer.generate(4000, generic_batch_renderer::primative_type::TRIANGLES, vertex::type::TINTED, generic_index_buffers::quad_1k.id, 4, 6, false);
 
 	// load font shader
 	this->is_3d = is_3d;
@@ -29,14 +33,14 @@ void gfoil::font::load(std::string path, bool is_3d) {
 	} else {
 		this->font_shader.load("font");
 		this->font_shader.bind();
-		this->uniform_offset_id = this->font_shader.get_uniform_id("u_offset");
+		this->uniform_offset_id = this->font_shader.get_uniform_id("u_transform");
 		this->font_shader.set_uniform(this->font_shader.get_uniform_id("u_texture"), (unsigned int)0);
 	}
 
 	this->is_loaded = true;
 
 }
-void gfoil::font::unload() {
+void font::unload() {
 	if (!this->is_loaded)
 		return;
 
@@ -45,39 +49,39 @@ void gfoil::font::unload() {
 	this->is_loaded = false;
 }
 
-void gfoil::font::buffer(std::vector<tint_vertex>& data) {
+void font::buffer(std::vector<vertex::tint>& data) {
 	if (data.size() >= renderer.max_batch_size)
 		system::log::error("Font: Attempting to buffer a vector larger than max batch size!");
 
-	this->renderer.buffer(data);
+	this->renderer.buffer_data(data);
 }
 
-void gfoil::font::flush() { this->renderer.flush(); }
+void font::flush() { this->renderer.flush(); }
 
-void gfoil::font::draw(glm::ivec2& window_size) {
+void font::draw(glm::ivec2& window_size) {
 	this->bind(window_size);
 	this->renderer.draw(); 
 }
 
-void gfoil::font::draw(std::vector<tint_vertex>& data, glm::ivec2& window_size) {
+void font::draw(std::vector<vertex::tint>& data, glm::ivec2& window_size) {
 	if (data.size() >= renderer.max_batch_size)
 		system::log::error("Font: Attempting to buffer a vector larger than max batch size!");
 
 	this->bind(window_size);
 	this->renderer.current_batch_size = 0;
-	this->renderer.buffer(data);
+	this->renderer.buffer_data(data);
 	this->renderer.flush();
 	this->renderer.draw();
 }
 
-void gfoil::font::bind(glm::ivec2& window_size) {
+void font::bind(glm::ivec2& window_size) {
 
 	this->font_shader.bind();
 	this->atlas.bind(0);
 
 	if (window_size != last_window_size) {
-		glm::vec2 offset = glm::vec2((window_size.x / 2.0) * (2.0 / window_size.x), (window_size.y / 2.0) * (2.0 / window_size.y));
-		this->font_shader.set_uniform(this->uniform_offset_id, offset);
+		glm::mat4 transform = gfoil::ortho(0.0f, (float)window_size.x, -(float)window_size.y, 0.0f, -1.0f, 1.0f);
+		this->font_shader.set_uniform(this->uniform_offset_id, false, transform);
 		last_window_size = window_size;
 	}
 }

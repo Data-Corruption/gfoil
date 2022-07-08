@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <unordered_map>
 
 const std::string config_path = "app/config.txt";
@@ -12,12 +13,12 @@ const std::string default_config =
 "window_size_x:1280\n"
 "window_size_y:720\n";
 
-namespace gfoil {
+class config {
+public:
 
-	extern std::unordered_map<std::string, std::string> config;
+	static std::unordered_map<std::string, std::string> data;
 
-	void load_config();
-
-	void save_config();
+	static void load_config();
+	static void save_config();
 
 };

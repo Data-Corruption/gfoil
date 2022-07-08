@@ -6,3 +6,5 @@ deps/
 x64/
 
 gfoil/Source/glad.c
+
+build_include.ps1

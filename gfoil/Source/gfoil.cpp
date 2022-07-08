@@ -1,14 +1,25 @@
 #include "gfoil.h"
 
-bool gfoil::init() {
+#include "system/system.h"
+#include "config.h"
 
+#include "graphics/window.h"
+#include "graphics/texture.h"
+#include "graphics/generic_index_buffers.h"
+
+#include "text.h"
+
+gfoil::gfoil_data gfoil::data;
+
+void gfoil::pre_window_init() {
 	// config
-	load_config();
-	
+	config::load_config();
+
 	// logging
 	system::log::log_path = "app/log.txt";
 	system::log::current_logging_level = system::log::levels::I_NEED_AN_ADULT;
-
+}
+void gfoil::post_window_init() {
 	// other
 	texture::bound_textures.fill(0);
 	texture::font_atlas_height = 48;
@@ -38,14 +49,13 @@ bool gfoil::init() {
 	glEnable(GL_MULTISAMPLE);
 
 	glEnable(GL_DEPTH_TEST);
-	depth_testing = true;
-	depth_function = depth_test_functions::LESS;
+	data.depth_testing = true;
+	data.depth_function = depth_test_functions::LESS;
 
 	glDisable(GL_BLEND);
-	blending = false;
-	blend_s_factor = blend_factors::ONE;
-	blend_d_factor = blend_factors::ZERO;
-
+	data.blending = false;
+	data.blend_s_factor = blend_factors::ONE;
+	data.blend_d_factor = blend_factors::ZERO;
 }
 
 void gfoil::shutdown() {
@@ -53,41 +63,63 @@ void gfoil::shutdown() {
 		glfwTerminate();
 }
 
-void gfoil::enable_blending() { 
-	if (blending)
+void gfoil::enable_blending() {
+	if (data.blending)
 		return;
 	glEnable(GL_BLEND);
-	blending = true;
+	data.blending = true;
 }
-void gfoil::disable_blending() { 
-	if (!blending)
+void gfoil::disable_blending() {
+	if (!data.blending)
 		return;
 	glDisable(GL_BLEND); 
-	blending = false;
+	data.blending = false;
 }
-void gfoil::set_blend_function(blend_factors s, blend_factors d) { 
-	if ((blend_s_factor == s) && (blend_d_factor == d))
+void gfoil::set_blend_function(blend_factors s, blend_factors d) {
+	if ((data.blend_s_factor == s) && (data.blend_d_factor == d))
 		return;
 	glBlendFunc((GLenum)s, (GLenum)d); 
-	blend_s_factor = s;
-	blend_d_factor = d;
+	data.blend_s_factor = s;
+	data.blend_d_factor = d;
 }
 
-void gfoil::enable_depth_test() { 
-	if (depth_testing)
+void gfoil::enable_depth_test() {
+	if (data.depth_testing)
 		return;
 	glEnable(GL_DEPTH_TEST); 
-	depth_testing = true;
+	data.depth_testing = true;
 }
-void gfoil::disable_depth_test() { 
-	if (!depth_testing)
+void gfoil::disable_depth_test() {
+	if (!data.depth_testing)
 		return;
 	glDisable(GL_DEPTH_TEST);
-	depth_testing = false;
+	data.depth_testing = false;
 }
-void gfoil::set_depth_test_function(depth_test_functions function) { 
-	if (depth_function == function)
+void gfoil::set_depth_test_function(depth_test_functions function) {
+	if (data.depth_function == function)
 		return;
 	glDepthFunc((GLenum)function); 
-	depth_function = function;
+	data.depth_function = function;
+}
+
+double gfoil::get_time() { return glfwGetTime(); }
+
+glm::mat4 gfoil::ortho
+(
+	const float& left,
+	const float& right,
+	const float& bottom,
+	const float& top,
+	const float& zNear,
+	const float& zFar
+)
+{
+	glm::mat4 result = glm::mat4(1.0f);
+	result[0][0] = float(2) / (right - left);
+	result[1][1] = float(2) / (top - bottom);
+	result[2][2] = -float(2) / (zFar - zNear);
+	result[3][0] = -(right + left) / (right - left);
+	result[3][1] = -(top + bottom) / (top - bottom);
+	result[3][2] = -(zFar + zNear) / (zFar - zNear);
+	return result;
 }

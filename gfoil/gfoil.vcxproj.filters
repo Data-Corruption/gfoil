@@ -18,16 +18,13 @@
     <ClInclude Include="Source\gfoil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\utilities\convert.h">
+    <ClInclude Include="Source\convert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\system\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\text.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\utilities\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\buffer_array_object.h">
@@ -54,10 +51,22 @@
     <ClInclude Include="Source\graphics\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\system\keyboard.h">
+    <ClInclude Include="Source\system\device_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\generic_index_buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\byte_vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\system\Win64\CDialogEventHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,22 +77,16 @@
     <ClCompile Include="Source\gfoil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\utilities\config.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\utilities\convert.cpp">
+    <ClCompile Include="Source\convert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\buffer_array_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\font.cpp">
@@ -101,7 +104,22 @@
     <ClCompile Include="Source\graphics\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\system\keyboard.cpp">
+    <ClCompile Include="Source\system\device_input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\byte_vector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\generic_index_buffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\system\Win64\CDialogEventHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\deps\Glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

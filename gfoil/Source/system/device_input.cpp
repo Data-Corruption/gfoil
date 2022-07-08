@@ -1,10 +1,10 @@
-#include "keyboard.h"
+#include "device_input.h"
 
-#include <Windows.h>
+#include <windows.h>
 
-std::array<int, 255> gfoil::keyboard::keys;
+std::array<int, 255> device_input::keys;
 
-void gfoil::keyboard::update() {
+void device_input::update() {
 
 	for (int code = 1; code < 255; code++) {
 		if (GetAsyncKeyState(code) & 0x8000) {
@@ -13,5 +13,7 @@ void gfoil::keyboard::update() {
 			keys[code] = 0;
 		}
 	}
+
+	// get mouse coords
 
 }

@@ -1,16 +1,18 @@
 #pragma once
 
-#include <Windows.h>
+#include <unordered_map>
 
-#include <glad/glad.h> 
+#include <windows.h>
+
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "system/system.h"
-#include "system/keyboard.h"
+#include "convert.h"
+#include "config.h"
 
-#include "utilities/convert.h"
-#include "utilities/config.h"
+#include "system/system.h"
+#include "system/device_input.h"
 
 #include "graphics/window.h"
 #include "graphics/shader.h"
@@ -26,7 +28,8 @@
 // Exclude rarely-used stuff from Windows headers
 #define WIN32_LEAN_AND_MEAN
 
-namespace gfoil {
+class gfoil {
+public:
 
 	const enum class blend_factors {
 		ZERO = 0,
@@ -57,28 +60,46 @@ namespace gfoil {
 		ALWAYS = 0x0207,
 	};
 
-	// ----==== Members ====----
+private:
 
-	blend_factors blend_s_factor;
-	blend_factors blend_d_factor;
-	depth_test_functions depth_function;
-	
-	bool culling;
-	bool blending;
-	bool depth_testing;
+	struct gfoil_data {
+		blend_factors blend_s_factor;
+		blend_factors blend_d_factor;
+		depth_test_functions depth_function;
 
-	// ----==== Methods ====----
+		bool culling;
+		bool blending;
+		bool depth_testing;
 
-	bool init();
+		bool initalized = false;
+	};
 
-	void shutdown();
+public:
 
-	void enable_blending();
-	void disable_blending();
-	void set_blend_function(blend_factors s, blend_factors d);
+	static gfoil_data data;
 
-	void enable_depth_test();
-	void disable_depth_test();
-	void set_depth_test_function(depth_test_functions function);
+	static void pre_window_init();
+	static void post_window_init();
+	static void shutdown();
+
+	static void enable_blending();
+	static void disable_blending();
+	static void set_blend_function(blend_factors s, blend_factors d);
+
+	static void enable_depth_test();
+	static void disable_depth_test();
+	static void set_depth_test_function(depth_test_functions function);
+
+	static double get_time();
+
+	static glm::mat4 ortho
+	(
+		const float& left,
+		const float& right,
+		const float& bottom,
+		const float& top,
+		const float& zNear,
+		const float& zFar
+	);
 
 };

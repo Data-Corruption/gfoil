@@ -1,18 +1,17 @@
 #include "shader.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include "../system/system.h"
 
 #include <glad/glad.h>
 
 const std::string shader_folder = "app/shaders";
 
-std::vector<gfoil::shader::loaded_shader> gfoil::shader::loaded_shaders;
+glm::uint shader::currently_bound_shader;
+std::vector<shader::loaded_shader> shader::loaded_shaders;
 
 // ----==== shader functions ====----
 
-void gfoil::shader::load(const std::string& name) {
+void shader::load(const std::string& name) {
 
 	std::string path = shader_folder + "/" + name;
 
@@ -43,14 +42,14 @@ void gfoil::shader::load(const std::string& name) {
 
 }
 
-void gfoil::shader::bind() {
+void shader::bind() {
 	if (currently_bound_shader != cached_id) {
 		glUseProgram(cached_id);
 		currently_bound_shader = cached_id;
 	}
 }
 
-void gfoil::shader::unload() {
+void shader::unload() {
 	if (this->cached_id == 0)
 		return;
 
@@ -70,58 +69,68 @@ void gfoil::shader::unload() {
 
 // ----==== Uniform stuff ====----
 
-glm::uint gfoil::shader::get_uniform_id(const std::string& name) { return glGetUniformLocation(this->cached_id, name.c_str()); }
+glm::uint shader::get_uniform_id(const std::string& name) { return glGetUniformLocation(this->cached_id, name.c_str()); }
 
 // --- bool
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& value) { glUniform1i(id, (int)value); }
+void shader::set_uniform(const glm::uint& id, const bool& value) { glUniform1i(id, (int)value); }
 
 // --- unsigned ints
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::uint& value)  { glUniform1ui(id, value); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::uvec2& value) { glUniform2ui(id, value.x, value.y); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::uvec3& value) { glUniform3ui(id, value.x, value.y, value.z); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::uvec4& value) { glUniform4ui(id, value.x, value.y, value.z, value.w); }
+void shader::set_uniform(const glm::uint& id, const glm::uint& value)  { glUniform1ui(id, value); }
+void shader::set_uniform(const glm::uint& id, const glm::uvec2& value) { glUniform2ui(id, value.x, value.y); }
+void shader::set_uniform(const glm::uint& id, const glm::uvec3& value) { glUniform3ui(id, value.x, value.y, value.z); }
+void shader::set_uniform(const glm::uint& id, const glm::uvec4& value) { glUniform4ui(id, value.x, value.y, value.z, value.w); }
 
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::uint>& value)  { glUniform1uiv(id, (GLsizei)value.size(), glm::value_ptr(value)); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::uvec2>& value) { glUniform2uiv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::uvec3>& value) { glUniform3uiv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::uvec4>& value) { glUniform4uiv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::uint>& value)  { glUniform1uiv(id, (GLsizei)value.size(), &value[0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::uvec2>& value) { glUniform2uiv(id, (GLsizei)value.size(), &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::uvec3>& value) { glUniform3uiv(id, (GLsizei)value.size(), &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::uvec4>& value) { glUniform4uiv(id, (GLsizei)value.size(), &value[0][0]); }
 
 // --- ints
-void gfoil::shader::set_uniform(const glm::uint& id, const int& value)        { glUniform1i(id, value); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::ivec2& value) { glUniform2i(id, value.x, value.y); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::ivec3& value) { glUniform3i(id, value.x, value.y, value.z); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::ivec4& value) { glUniform4i(id, value.x, value.y, value.z, value.w); }
+void shader::set_uniform(const glm::uint& id, const int& value)        { glUniform1i(id, value); }
+void shader::set_uniform(const glm::uint& id, const glm::ivec2& value) { glUniform2i(id, value.x, value.y); }
+void shader::set_uniform(const glm::uint& id, const glm::ivec3& value) { glUniform3i(id, value.x, value.y, value.z); }
+void shader::set_uniform(const glm::uint& id, const glm::ivec4& value) { glUniform4i(id, value.x, value.y, value.z, value.w); }
 
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<int>& value)        { glUniform1iv(id, (GLsizei)value.size(), glm::value_ptr(value)); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::ivec2>& value) { glUniform2iv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::ivec3>& value) { glUniform3iv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::ivec4>& value) { glUniform4iv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
+void shader::set_uniform(const glm::uint& id, const std::vector<int>& value)        { glUniform1iv(id, (GLsizei)value.size(), &value[0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::ivec2>& value) { glUniform2iv(id, (GLsizei)value.size(), &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::ivec3>& value) { glUniform3iv(id, (GLsizei)value.size(), &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::ivec4>& value) { glUniform4iv(id, (GLsizei)value.size(), &value[0][0]); }
 
 // --- floats
-void gfoil::shader::set_uniform(const glm::uint& id, const GLfloat& value)   { glUniform1f(id, value); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::vec2& value) { glUniform2f(id, value.x, value.y); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::vec3& value) { glUniform3f(id, value.x, value.y, value.z); }
-void gfoil::shader::set_uniform(const glm::uint& id, const glm::vec4& value) { glUniform4f(id, value.x, value.y, value.z, value.w); }
+void shader::set_uniform(const glm::uint& id, const GLfloat& value)   { glUniform1f(id, value); }
+void shader::set_uniform(const glm::uint& id, const glm::vec2& value) { glUniform2f(id, value.x, value.y); }
+void shader::set_uniform(const glm::uint& id, const glm::vec3& value) { glUniform3f(id, value.x, value.y, value.z); }
+void shader::set_uniform(const glm::uint& id, const glm::vec4& value) { glUniform4f(id, value.x, value.y, value.z, value.w); }
 
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<GLfloat>& value)   { glUniform1fv(id, (GLsizei)value.size(), glm::value_ptr(value)); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::vec2>& value) { glUniform2fv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::vec3>& value) { glUniform3fv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const std::vector<glm::vec4>& value) { glUniform4fv(id, (GLsizei)value.size(), glm::value_ptr(value[0])); }
+void shader::set_uniform(const glm::uint& id, const std::vector<GLfloat>& value)   { glUniform1fv(id, (GLsizei)value.size(), &value[0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::vec2>& value) { glUniform2fv(id, (GLsizei)value.size(), &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::vec3>& value) { glUniform3fv(id, (GLsizei)value.size(), &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const std::vector<glm::vec4>& value) { glUniform4fv(id, (GLsizei)value.size(), &value[0][0]); }
 
 // --- matrices 
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat2>& value)   { glUniformMatrix2fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat3>& value)   { glUniformMatrix3fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat4>& value)   { glUniformMatrix4fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat2x3>& value) { glUniformMatrix2x3fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat3x2>& value) { glUniformMatrix3x2fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat2x4>& value) { glUniformMatrix2x4fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat4x2>& value) { glUniformMatrix4x2fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat3x4>& value) { glUniformMatrix3x4fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
-void gfoil::shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat4x3>& value) { glUniformMatrix4x3fv(id, (GLsizei)value.size(), transpose, glm::value_ptr(value[0])); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat2& value)   { glUniformMatrix2fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat3& value)   { glUniformMatrix3fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat4& value)   { glUniformMatrix4fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat2x3& value) { glUniformMatrix2x3fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat3x2& value) { glUniformMatrix3x2fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat2x4& value) { glUniformMatrix2x4fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat4x2& value) { glUniformMatrix4x2fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat3x4& value) { glUniformMatrix3x4fv(id, (GLsizei)1, transpose, &value[0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const glm::mat4x3& value) { glUniformMatrix4x3fv(id, (GLsizei)1, transpose, &value[0][0]); }
+
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat2>& value)   { glUniformMatrix2fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat3>& value)   { glUniformMatrix3fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat4>& value)   { glUniformMatrix4fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat2x3>& value) { glUniformMatrix2x3fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat3x2>& value) { glUniformMatrix3x2fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat2x4>& value) { glUniformMatrix2x4fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat4x2>& value) { glUniformMatrix4x2fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat3x4>& value) { glUniformMatrix3x4fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
+void shader::set_uniform(const glm::uint& id, const bool& transpose, const std::vector<glm::mat4x3>& value) { glUniformMatrix4x3fv(id, (GLsizei)value.size(), transpose, &value[0][0][0]); }
 
 // ----==== loaded_shader functions ====----
 
-void gfoil::shader::loaded_shader::generate() {
+void shader::loaded_shader::generate() {
 
 	if (!system::files::exists(shader_folder))
 		system::log::error("Shader: shader folder does not exist!");
@@ -133,7 +142,7 @@ void gfoil::shader::loaded_shader::generate() {
 	std::vector<std::string> stage_paths;
 	stage_paths.emplace_back(this->path + "/vertex.glsl");
 	stage_paths.emplace_back(this->path + "/fragment.glsl");
-	if (!system::files::exists(this->path + "/geometry.glsl"))
+	if (system::files::exists(this->path + "/geometry.glsl"))
 		stage_paths.emplace_back(this->path + "/geometry.glsl");
 
 	// compile stages
@@ -163,12 +172,12 @@ void gfoil::shader::loaded_shader::generate() {
 		glDeleteShader(stage_id);
 	glUseProgram(0);
 }
-void gfoil::shader::loaded_shader::destroy() {
+void shader::loaded_shader::destroy() {
 	system::log::warn("Shader: deleting shader: " + this->path + " id: " + std::to_string(id));
 	glDeleteProgram(id);
 }
 
-glm::uint gfoil::shader::loaded_shader::compile_shader(std::string& path) {
+glm::uint shader::loaded_shader::compile_shader(std::string& path) {
 
 	// get type
 	GLenum shader_type = 0;

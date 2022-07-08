@@ -14,14 +14,14 @@
 
 static std::mutex texture_access_mtx;
 
-std::array<glm::uint, 16> gfoil::texture::bound_textures;
-std::vector<gfoil::texture::loaded_texture> gfoil::texture::loaded_textures;
+std::array<glm::uint, 16> texture::bound_textures;
+std::vector<texture::loaded_texture> texture::loaded_textures;
 
-FT_Library gfoil::texture::freetype;
-bool gfoil::texture::is_freetype_initialized = false;
-int gfoil::texture::font_atlas_height;
+FT_Library texture::freetype;
+bool texture::is_freetype_initialized = false;
+int texture::font_atlas_height;
 
-void gfoil::texture::load(const std::string& path_string) {
+void texture::load(const std::string& path_string) {
 
 	text path = path_string;
 
@@ -59,7 +59,7 @@ void gfoil::texture::load(const std::string& path_string) {
 	this->cached_id = loaded_textures.back().id;
 }
 
-void gfoil::texture::bind(const glm::uint& texture_slot) {
+void texture::bind(const glm::uint& texture_slot) {
 	if (texture_slot > 16)
 		system::log::error("Attempting to bind a texture slot over 16: " + std::to_string(texture_slot));
 
@@ -71,7 +71,7 @@ void gfoil::texture::bind(const glm::uint& texture_slot) {
 	bound_textures[texture_slot] = this->cached_id;
 }
 
-void gfoil::texture::reaload_file() {
+void texture::reaload_file() {
 	if (this->cached_id != 0) {
 		for (auto& texture : loaded_textures) {
 			if (texture.id == this->cached_id) {
@@ -86,7 +86,7 @@ void gfoil::texture::reaload_file() {
 	}
 }
 
-glm::ivec2 gfoil::texture::get_size() {
+glm::ivec2 texture::get_size() {
 	if (this->cached_id != 0) {
 		for (auto& texture : loaded_textures) {
 			if (texture.id == this->cached_id) {
@@ -97,9 +97,9 @@ glm::ivec2 gfoil::texture::get_size() {
 	return glm::ivec2(0, 0);
 }
 
-unsigned int gfoil::texture::get_id() { return this->cached_id; }
+unsigned int texture::get_id() { return this->cached_id; }
 
-void gfoil::texture::unload() {
+void texture::unload() {
 	if (this->cached_id == 0)
 		return;
 		
@@ -118,13 +118,13 @@ void gfoil::texture::unload() {
 	}
 }
 
-void gfoil::texture::loaded_texture::generate() {
+void texture::loaded_texture::generate() {
 	glGenTextures(1, &this->id);
 	glBindTexture(GL_TEXTURE_2D, this->id);
 	this->load_file();
 	system::log::info("generated texture:" + this->path + " id: " + std::to_string(this->id));
 }
-void gfoil::texture::loaded_texture::load_file() {
+void texture::loaded_texture::load_file() {
 	int width, height, format;
 
 	unsigned char* data;
@@ -157,13 +157,13 @@ void gfoil::texture::loaded_texture::load_file() {
 	}
 }
 
-void gfoil::texture::loaded_texture::generate_font() {
+void texture::loaded_texture::generate_font() {
 	glGenTextures(1, &this->id);
 	glBindTexture(GL_TEXTURE_2D, this->id);
 	this->load_font_file();
 	system::log::info("generated font atlas:" + this->path + " id: " + std::to_string(this->id));
 }
-void gfoil::texture::loaded_texture::load_font_file() {
+void texture::loaded_texture::load_font_file() {
 
 	if (!is_freetype_initialized) {
 		if (FT_Init_FreeType(&freetype))
@@ -174,24 +174,23 @@ void gfoil::texture::loaded_texture::load_font_file() {
 	FT_Face face;
 	if (FT_New_Face(freetype, path.c_str(), 0, &face))
 		system::log::error("Failed to open font: " + path);
-	FT_Set_Pixel_Sizes(face, 0, gfoil::texture::font_atlas_height);
+	FT_Set_Pixel_Sizes(face, 0, texture::font_atlas_height);
 
-	// get width
-	if (FT_Load_Char(face, 32, FT_LOAD_RENDER))
-		system::log::error("Failed to load character: 32");
+	// get height, width
 
-	unsigned int char_width = face->glyph->bitmap.width;
-	this->size = glm::uvec2(char_width * 95, 0);
+	unsigned int char_width = 0;
 
-	// get height, make sure it's monospaced
 	for (short int i = 33; i <= 127; i++) { // skip first 32 characters since they are control codes / space
 		if (FT_Load_Char(face, i, FT_LOAD_RENDER))
 			system::log::error("Failed to load character: " + std::to_string(i));
-		if (face->glyph->bitmap.width != char_width)
-			system::log::error("Font is NOT monospaced!: " + this->path);
 
+		char_width = std::max(char_width, face->glyph->bitmap.width);
 		this->size.y = std::max(this->size.y, face->glyph->bitmap.rows);
 	}
+
+	this->size.x = char_width * 95;
+
+	// create image
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -206,13 +205,13 @@ void gfoil::texture::loaded_texture::load_font_file() {
 	for (int i = 33; i <= 127; i++) {
 		if (FT_Load_Char(face, i, FT_LOAD_RENDER))
 			continue;
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
-		x += face->glyph->bitmap.width;
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, char_width, this->size.y, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+		x += char_width;
 	}
 
 }
 
-void gfoil::texture::loaded_texture::destroy() {
+void texture::loaded_texture::destroy() {
 	glDeleteTextures(1, &this->id);
 	system::log::warn("deleting texture:" + this->path);
 }

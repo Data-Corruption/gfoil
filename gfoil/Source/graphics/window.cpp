@@ -1,13 +1,15 @@
 #include "window.h"
 
 #include "../system/system.h"
-#include "../utilities/config.h"
+#include "../config.h"
 
 #include "stb_image.h"
 
-gfoil::window::window_data gfoil::window::data;
+#include "../gfoil.h"
 
-void gfoil::window::init_glfw() {
+window::window_data window::data;
+
+void window::init_glfw() {
 	glfwSetErrorCallback([](int error, const char* description) {
 		system::log::error("GLFW: " + static_cast<std::string>(description));
 	});
@@ -17,7 +19,7 @@ void gfoil::window::init_glfw() {
 
 	data.glfw_initialized = true;
 }
-void gfoil::window::init_glad() {
+void window::init_glad() {
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		glfwTerminate();
 		system::log::error("GLAD: failed to initialize!");
@@ -25,7 +27,7 @@ void gfoil::window::init_glad() {
 	data.glad_initialized = true;
 }
 
-void gfoil::window::register_callbacks() {
+void window::register_callbacks() {
 
 	glfwSetCursorPosCallback(data.handle, [](GLFWwindow* window, double xpos, double ypos) {
 		data.mouse_position = glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos));
@@ -49,19 +51,19 @@ void gfoil::window::register_callbacks() {
 	glfwSetWindowCloseCallback(data.handle, [](GLFWwindow* window) {
 		data.asking_to_close = true;
 
-		config["window_max"] = std::to_string(data.maximized);
-		config["window_pos_x"] = std::to_string(data.position.x);
-		config["window_pos_y"] = std::to_string(data.position.y);
-		config["window_size_x"] = std::to_string(data.size.x);
-		config["window_size_y"] = std::to_string(data.size.y);
-		save_config();
+		config::data["window_max"] = std::to_string(data.maximized);
+		config::data["window_pos_x"] = std::to_string(data.position.x);
+		config::data["window_pos_y"] = std::to_string(data.position.y);
+		config::data["window_size_x"] = std::to_string(data.size.x);
+		config::data["window_size_y"] = std::to_string(data.size.y);
+		config::save_config();
 
 		glfwSetWindowShouldClose(window, GLFW_FALSE);
 	});
 
 }
 
-void gfoil::window::generate(
+void window::generate(
 	std::string title,
 	std::string icon_path,
 	glm::ivec2 size,
@@ -80,6 +82,9 @@ void gfoil::window::generate(
 	data.title = title;
 	data.size = size;
 	data.position = position;
+
+	if (!gfoil::data.initalized)
+		gfoil::pre_window_init();
 
 	if (!data.glfw_initialized)
 		init_glfw();
@@ -131,15 +136,20 @@ void gfoil::window::generate(
 
 	glfwShowWindow(data.handle);
 
+	if (!gfoil::data.initalized)
+		gfoil::post_window_init();
+
+	gfoil::data.initalized = true;
+
 	system::log::info("GLFW: successfully created window!");
 
 }
 
-void gfoil::window::destroy() {
+void window::destroy() {
 	glfwDestroyWindow(data.handle);
 }
 
-void gfoil::window::poll_events() {
+void window::poll_events() {
 
 	if (data.asking_to_close) {
 		if (data.close_confirm) {
@@ -156,21 +166,21 @@ void gfoil::window::poll_events() {
 	glfwPollEvents();
 }
 
-void gfoil::window::swap_buffers() {
+void window::swap_buffers() {
 	glfwSwapBuffers(data.handle);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 // --- setters ---
-void gfoil::window::set_title(std::string title) {
+void window::set_title(std::string title) {
 	data.title = title;
 	glfwSetWindowTitle(data.handle, title.c_str());
 }
-void gfoil::window::set_position(glm::ivec2 position) {
+void window::set_position(glm::ivec2 position) {
 	data.position = position;
 	glfwSetWindowPos(data.handle, position.x, position.y);
 }
-void gfoil::window::set_icon(std::string path) {
+void window::set_icon(std::string path) {
 	GLFWimage image;
 	image.pixels = stbi_load(path.c_str(), &image.width, &image.height, 0, 4);
 	glfwSetWindowIcon(data.handle, 1, &image);
@@ -178,20 +188,22 @@ void gfoil::window::set_icon(std::string path) {
 }
 
 // --- getters ---
-GLFWwindow* gfoil::window::get_handle()  { return data.handle; }
-std::string gfoil::window::get_title()   { return data.title; }
-glm::ivec2 gfoil::window::get_position() { return data.position; }
-glm::ivec2 gfoil::window::get_size()     { return data.size; }
+GLFWwindow* window::get_handle()  { return data.handle; }
+std::string window::get_title()   { return data.title; }
+glm::ivec2 window::get_position() { return data.position; }
+glm::ivec2 window::get_size()     { return data.size; }
+
+bool window::is_open() { return !glfwWindowShouldClose(data.handle);  }
 
 // --- flags ---
-bool gfoil::window::flag_resized()          { return data.resized; }
-bool gfoil::window::flag_maximized()        { return data.maximized; }
-bool gfoil::window::flag_minimized()        { return data.minimized; }
-bool gfoil::window::flag_glfw_initialized() { return data.glfw_initialized; }
-bool gfoil::window::flag_asking_to_close()  { return data.asking_to_close; }
+bool window::flag_resized()          { return data.resized; }
+bool window::flag_maximized()        { return data.maximized; }
+bool window::flag_minimized()        { return data.minimized; }
+bool window::flag_glfw_initialized() { return data.glfw_initialized; }
+bool window::flag_asking_to_close()  { return data.asking_to_close; }
 
 // true = close, false = cancel close
-void gfoil::window::close_response(bool value) {
+void window::close_response(bool value) {
 	if (value) {
 		data.close_confirm = true;
 	} else {

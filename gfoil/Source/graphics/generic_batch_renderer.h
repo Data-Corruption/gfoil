@@ -8,7 +8,10 @@
 #include "buffer_array_object.h"
 #include "buffer.h"
 
-namespace gfoil {
+#include "vertex.h"
+
+class generic_batch_renderer {
+public:
 
 	const enum class primative_type {
 		POINTS = 0,
@@ -20,81 +23,54 @@ namespace gfoil {
 		TRIANGLE_FAN = 6,
 	};
 
-	const enum class vertex_type {
-		TEXTURE = 0,
-		TINTED = 1,
-		COLOR = 2,
-	};
+	// ----==== Members ====----
 
-	// third is texture float is alpha
-	struct texture_vertex {
-		glm::vec3 position;
-		glm::vec3 texture_coords;
-	};
-	// third is texture float is alpha
-	struct tint_vertex {
-		glm::vec3 position;
-		glm::vec3 texture_coords;
-		glm::vec3 color;
-	};
-	// fourth is color float is alpha
-	struct color_vertex {
-		glm::vec3 position;
-		glm::vec4 color;
-	};
+	primative_type primative_type;
+	vertex::type vertex_type;
 
-	class generic_batch_renderer {
-	public:
+	unsigned int current_batch_size;
+	unsigned int last_batch_size = 0;
+	unsigned int max_batch_size;
 
-		// ----==== Members ====----
+	unsigned int vertex_group_size;
+	unsigned int indices_per_group;
 
-		primative_type primative_type;
-		vertex_type vertex_type;
+	bool allow_overflow;
 
-		unsigned int current_batch_size;
-		unsigned int last_batch_size = 0;
-		unsigned int max_batch_size;
+	// ----==== Methods ====----
 
-		unsigned int vertex_group_size;
-		unsigned int indices_per_group;
+	/// Count is max number of vertices for each batch, if using an index buffer it must be a multiple of vertex group size.
+	/// Index stuff is ignored if index_buffer_id is 0
+	void generate(
+		unsigned int count,
+		enum primative_type primative,
+		enum vertex::type vertex,
+		unsigned int index_buffer_id,
+		unsigned int vertex_group_size,
+		unsigned int indices_per_group,
+		bool allow_overflow
+	);
+	void destroy();
 
-		bool allow_overflow;
+	// sends buffer to gpu
+	void flush();
 
-		// ----==== Methods ====----
+	// draws most recent flush
+	void draw();
 
-		/// Count is max number of vertices for each batch, if using an index buffer it must be a multiple of vertex group size.
-		/// Index stuff is ignored if index_buffer_id is 0
-		void generate(
-			unsigned int count, 
-			gfoil::primative_type primative_type, 
-			gfoil::vertex_type vertex_type, 
-			unsigned int index_buffer_id,
-			unsigned int vertex_group_size,
-			unsigned int indices_per_group,
-			bool allow_overflow
-		);
-		void destroy();
+	// add to buffer
+	void buffer_data(std::vector<vertex::texture>& vertices);
+	void buffer_data(std::vector<vertex::tint>& vertices);
+	void buffer_data(std::vector<vertex::color>& vertices);
 
-		// sends buffer to gpu
-		void flush();
+private:
 
-		// draws most recent flush
-		void draw();
+	std::vector<vertex::texture> data_texture;
+	std::vector<vertex::tint> data_tint;
+	std::vector<vertex::color> data_color;
 
-		// add to buffer
-		void buffer(std::vector<texture_vertex>& vertices);
-		void buffer(std::vector<tint_vertex>& vertices);
-		void buffer(std::vector<color_vertex>& vertices);
+	buffer_array_object bao;
+	buffer vertex_buffer;
+	unsigned int index_buffer_id;
 
-	private:
-
-		std::vector<texture_vertex> data_texture;
-		std::vector<tint_vertex> data_tint;
-		std::vector<color_vertex> data_color;
-
-		buffer_array_object bao;
-		gfoil::buffer vertex_buffer;
-		unsigned int index_buffer_id;
-
-	};
 };

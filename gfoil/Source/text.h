@@ -58,9 +58,12 @@ public:
 	std::string string = "";
 
 	// render info
-	glm::vec2 position = glm::vec2(0, 0);   // screen coords in pixels, top left of text
-	glm::vec2 spacing = glm::vec2(0, 0);   // in pixels
-	float scale = 1.0f;                   // also scales spacing
+	glm::vec2 position = glm::vec2(0.0f, 0.0f);   // coords in pixels
+	glm::vec2 spacing = glm::vec2(0.0f, 0.0f);   // spacing in pixels
+	glm::vec2 mask = glm::vec2(0, 0);           // relative limit for drawing in pixels
+
+	float scale = 1.0f;
+	glm::vec3 default_color = glm::vec3(0.9f, 0.9f, 0.9f);
 
 	unsigned int line_start = 0;
 	unsigned int line_limit = 200;
@@ -130,7 +133,7 @@ public:
 	void unembed_color_codes();
 	void embed_color_codes();
 
-	void draw(glm::ivec2& window_size);
+	void draw();
 
 private:
 

@@ -1,25 +1,19 @@
 #include "texture.h"
 
-#include <algorithm>
 #include <mutex>
 
 #include "../system/system.h"
-
 #include "../text.h"
+
+#include <glad/glad.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
-#include <glad/glad.h>
 
 static std::mutex texture_access_mtx;
 
 std::array<glm::uint, 16> texture::bound_textures;
 std::vector<texture::loaded_texture> texture::loaded_textures;
-
-FT_Library texture::freetype;
-bool texture::is_freetype_initialized = false;
-int texture::font_atlas_height;
 
 void texture::load(const std::string& path_string) {
 
@@ -49,12 +43,7 @@ void texture::load(const std::string& path_string) {
 	loaded_textures.emplace_back();
 	loaded_textures.back().path = path;
 	loaded_textures.back().reference_holders = 1;
-
-	if (path.contains(".ttf")) {
-		loaded_textures.back().generate_font();
-	} else {
-		loaded_textures.back().generate();
-	}
+	loaded_textures.back().generate();
 
 	this->cached_id = loaded_textures.back().id;
 }
@@ -75,12 +64,7 @@ void texture::reaload_file() {
 	if (this->cached_id != 0) {
 		for (auto& texture : loaded_textures) {
 			if (texture.id == this->cached_id) {
-				text path = texture.path;
-				if (path.contains(".ttf")) {
-					texture.load_font_file();
-				} else {
-					texture.load_file();
-				}
+				texture.load_file();
 			}
 		}
 	}
@@ -156,61 +140,6 @@ void texture::loaded_texture::load_file() {
 		system::log::error("Failed to load texture: " + this->path);
 	}
 }
-
-void texture::loaded_texture::generate_font() {
-	glGenTextures(1, &this->id);
-	glBindTexture(GL_TEXTURE_2D, this->id);
-	this->load_font_file();
-	system::log::info("generated font atlas:" + this->path + " id: " + std::to_string(this->id));
-}
-void texture::loaded_texture::load_font_file() {
-
-	if (!is_freetype_initialized) {
-		if (FT_Init_FreeType(&freetype))
-			system::log::error("Freetype: failed to init library!");
-		is_freetype_initialized = true;
-	}
-
-	FT_Face face;
-	if (FT_New_Face(freetype, path.c_str(), 0, &face))
-		system::log::error("Failed to open font: " + path);
-	FT_Set_Pixel_Sizes(face, 0, texture::font_atlas_height);
-
-	// get height, width
-
-	unsigned int char_width = 0;
-
-	for (short int i = 33; i <= 127; i++) { // skip first 32 characters since they are control codes / space
-		if (FT_Load_Char(face, i, FT_LOAD_RENDER))
-			system::log::error("Failed to load character: " + std::to_string(i));
-
-		char_width = std::max(char_width, face->glyph->bitmap.width);
-		this->size.y = std::max(this->size.y, face->glyph->bitmap.rows);
-	}
-
-	this->size.x = char_width * 95;
-
-	// create image
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, this->size.x, this->size.y, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-
-	short int x = 0;
-	for (int i = 33; i <= 127; i++) {
-		if (FT_Load_Char(face, i, FT_LOAD_RENDER))
-			continue;
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, char_width, this->size.y, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
-		x += char_width;
-	}
-
-}
-
 void texture::loaded_texture::destroy() {
 	glDeleteTextures(1, &this->id);
 	system::log::warn("deleting texture:" + this->path);

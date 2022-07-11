@@ -1,6 +1,7 @@
 #include "text.h"
 
 #include "convert.h"
+#include "graphics/window.h"
 
 const std::string valid_hex_characters = "0123456789abcdef";
 
@@ -170,59 +171,45 @@ void text::build_buffer() {
 	this->buffer_data.clear();
 	this->buffer_data.shrink_to_fit();
 
-	glm::vec3 color = glm::vec4(0.9f, 0.9f, 0.9f, 1.0f);
+	glm::vec2 cursor = this->position;
+	glm::vec3 color = this->default_color;
 
-	float cw = this->font->char_size.x * scale;
-	float ch = this->font->char_size.y * scale;
-
-	unsigned int row = 0;
-	unsigned int collum = 0;
+	glm::uint line = 1;
 
 	for (int i = 0; i < this->string.size(); i++) {
-
-		// new line code
-		if (this->string[i] == '\n') {
-			row++;
-			collum = 0;
-			continue;
-		}
-
-		// skip unwanted rows(aka lines)
-		if (row > line_limit)
-			return;
-		if (row < line_start)
-			continue;
-
-		// skip unwanted collums 
-		if ((collum < line_char_start) || (collum > line_char_limit)) {
-			collum++;
-			continue;
-		}
 
 		// get color
 		if (this->color_codes.count(i) != 0)
 			color = color_codes[i];
 
-		// not visable
-		if (this->string[i] <= ' ') {
-			collum++;
+		// new line code
+		if (this->string[i] == '\n') {
+			cursor = glm::vec2(this->position.x, this->position.y - (line * (atlas_pixel_height + this->spacing.y)));
+			line++;
 			continue;
 		}
 
-		// build quad
-		float x = (((cw * collum) + (this->spacing.x * collum)) * this->scale) + this->position.x;
-		float y = (((ch *    row) + (this->spacing.y *    row)) * this->scale) + this->position.y;
+		// if outside mask skip
 
-		// atlas texture offset
-		float tx = (this->string[i] - 32) * cw;
+		font::character_info c = this->font->get_char(this->string[i]);
+		glm::vec2 cp = glm::vec2(cursor.x + c.bl, -cursor.y - c.bt);
+		glm::vec2 cs = glm::vec2(c.bw, c.bh);
 
-		//                                     /px      /py                  /tx       /ty /ta 
-		this->buffer_data.push_back({ glm::vec3(x,      y - ch, 0), glm::vec3(tx,      0, 1.0f), color }); // bl
-		this->buffer_data.push_back({ glm::vec3(x + cw, y - ch, 0), glm::vec3(tx + cw, 0, 1.0f), color }); // br
-		this->buffer_data.push_back({ glm::vec3(x + cw, y,      0), glm::vec3(tx + cw, 1, 1.0f), color }); // tr
-		this->buffer_data.push_back({ glm::vec3(x,      y,      0), glm::vec3(tx,      1, 1.0f), color }); // tl
+		cursor.x += c.ax;
+		if (this->string[i] == '	')
+			cursor.x += c.ax * 3.0f;
 
-		collum++;
+		if (!cs.x || !cs.y)
+			continue;
+
+		float txcw = c.bw / this->font->atlas_size.x;
+		float txch = c.bh / this->font->atlas_size.y;
+
+		//                                     /px           /py                           /tx           /ty   /ta 
+		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y - cs.y, 0.0f), glm::vec3(c.tx,        txch, 1.0f), color }); // bl
+		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y - cs.y, 0.0f), glm::vec3(c.tx + txcw, txch, 1.0f), color }); // br
+		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y,        0.0f), glm::vec3(c.tx + txcw, 0.0f, 1.0f), color }); // tr
+		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y,        0.0f), glm::vec3(c.tx,        0.0f, 1.0f), color }); // tl
 
 	}
 }
@@ -285,10 +272,10 @@ void text::embed_color_codes() {
 
 }
 
-void text::draw(glm::ivec2& window_size) {
+void text::draw() {
 	if (this->font == nullptr)
 		system::log::error("Attempting to draw text without having a font set");
 	this->build_buffer();
-	this->font->draw(this->buffer_data, window_size);
+	this->font->draw(this->buffer_data, scale);
 }
 

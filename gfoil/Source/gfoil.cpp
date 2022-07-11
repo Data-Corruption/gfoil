@@ -22,7 +22,6 @@ void gfoil::pre_window_init() {
 void gfoil::post_window_init() {
 	// other
 	texture::bound_textures.fill(0);
-	texture::font_atlas_height = 48;
 
 	// quad index buffer
 	uint16_t max_indices = 1000 * 6;

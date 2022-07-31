@@ -4,9 +4,9 @@
 
 #include "text.h"
 
-std::unordered_map<std::string, std::string> config::data;
+std::unordered_map<std::string, std::string> gfoil::config::data;
 
-void config::load_config() {
+void gfoil::config::load() {
 	if (!system::files::exists(config_path)) {
 		system::log::warn("Config file not found, generating default one.");
 		system::files::write(default_config, config_path);
@@ -24,7 +24,7 @@ void config::load_config() {
 		data[key_value_pair[0].string] = key_value_pair[1].string;
 	}
 }
-void config::save_config() {
+void gfoil::config::save() {
 	std::string result = "";
 
 	for (auto& entry : data)

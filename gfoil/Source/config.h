@@ -13,12 +13,15 @@ const std::string default_config =
 "window_size_x:1280\n"
 "window_size_y:720\n";
 
-class config {
-public:
+namespace gfoil {
 
-	static std::unordered_map<std::string, std::string> data;
+	namespace config {
 
-	static void load_config();
-	static void save_config();
+		extern std::unordered_map<std::string, std::string> data;
 
-};
+		extern void load();
+		extern void save();
+
+	}
+
+}

@@ -17,8 +17,8 @@
 
 #include "../convert.h"
 
-std::string system::log::log_path;
-system::log::levels system::log::current_logging_level;
+std::string system::log::log_path = "app/log.txt";
+system::log::levels system::log::current_logging_level = system::log::levels::I_NEED_AN_ADULT;
 
 std::string system::get_time() {
 	std::string result = "%F,%T";

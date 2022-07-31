@@ -4,48 +4,62 @@
 #include <vector>
 #include <string>
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
-class texture {
-public:
+namespace gfoil {
 
-	static std::array<glm::uint, 16> bound_textures;
+	class texture {
+	public:
 
-	/// Loads image and increases its referencing counter.
-	/// Will unload current texture if one is loaded
-	void load(const std::string& path_string);
+		glm::ivec2 size;
 
-	// Binds the texture to a slot for use. valid slots are 0-16
-	void bind(const glm::uint& slot);
+		/// Creates a texture from a file or caches its id and increases its referencing counter.
+		/// Will unload current texture if one is loaded
+		/// return true if first ref holder
+		bool load(const std::string& path);
+		/// Creates a texture or caches its id and increases its referencing counter.
+		/// Will unload current texture if one is loaded
+		/// return true if first ref holder
+		bool generate(const std::string& tag);
 
-	/// load() only loads the file the first time it's called or when it has 
-	/// been called again after all reference holders have called unload().
-	/// reaload_file() will reload the file so the texture reflects any modifications to the file.
-	void reaload_file();
+		// sets target active texture slot to this texture. valid slots are 0-16
+		void bind(const glm::uint& slot);
 
-	glm::ivec2 get_size();
-	unsigned int get_id();
+		/// Reloads the file so the texture reflects any modifications to the file.
+		void reaload_file();
 
-	// Remember to call when done using
-	void unload();
+		// gets size from opengl, very $$$ maybe ?
+		glm::ivec2 update_size();
 
-private:
+		unsigned int get_id();
 
-	struct loaded_texture {
+		// Remember to call when done using
+		void unload();
 
-		glm::uint reference_holders;
-		glm::uint id;
-		glm::uvec2 size;
-		std::string path;
+	private:
 
-		void generate();
-		void load_file();
-		void destroy();
+		struct generated_texture {
+
+			glm::uint reference_holders;
+			glm::uint id;
+
+			// if it has a path it was just generated from a file
+			std::string path = "";
+			std::string tag = "";
+
+			void generate();
+			void load_file(glm::ivec2& size);
+			void destroy();
+
+		};
+
+		glm::uint cached_id = 0;
+
+		static std::vector<generated_texture> generated_textures;
+		static std::array<glm::uint, 16> active_textures;
+		static glm::uint current_bound_texture;
 
 	};
 
-	glm::uint cached_id = 0;
-
-	static std::vector<loaded_texture> loaded_textures;
-
-};
+}

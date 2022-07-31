@@ -8,7 +8,7 @@
 #include "buffer_array_object.h"
 #include "buffer.h"
 
-#include "vertex.h"
+#include "small_types/vertex.h"
 
 class generic_batch_renderer {
 public:

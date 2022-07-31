@@ -1,100 +1,118 @@
 #include "texture.h"
 
-#include <mutex>
-
 #include "../system/system.h"
 #include "../text.h"
-
-#include <glad/glad.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-static std::mutex texture_access_mtx;
+std::array<glm::uint, 16> gfoil::texture::active_textures = { 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
+glm::uint gfoil::texture::current_bound_texture = 0;
+std::vector<gfoil::texture::generated_texture> gfoil::texture::generated_textures;
 
-std::array<glm::uint, 16> texture::bound_textures;
-std::vector<texture::loaded_texture> texture::loaded_textures;
-
-void texture::load(const std::string& path_string) {
-
-	text path = path_string;
-
-	std::lock_guard<std::mutex> lock(texture_access_mtx);
+bool gfoil::texture::load(const std::string& path) {
 
 	// unload the current texture or return if already loaded
 	if (this->cached_id != 0) {
-		for (auto& texture : loaded_textures)
-			if ((texture.id == this->cached_id) && (texture.path == path.string))
-				return;
+		for (auto& texture : generated_textures)
+			if ((texture.id == this->cached_id) && (texture.path == path))
+				return false;
 
 		this->unload();
 	}
-	for (auto& texture : loaded_textures) {
-		if (texture.path == path.string) {
+	for (auto& texture : generated_textures) {
+		if (texture.path == path) {
 
 			this->cached_id = texture.id;
 			texture.reference_holders++;
 
-			return;
+			return false;
 		}
 	}
 
 	// it's not loaded so load it
-	loaded_textures.emplace_back();
-	loaded_textures.back().path = path;
-	loaded_textures.back().reference_holders = 1;
-	loaded_textures.back().generate();
+	generated_textures.emplace_back();
+	generated_textures.back().path = path;
+	generated_textures.back().reference_holders = 1;
+	generated_textures.back().generate();
+	generated_textures.back().load_file(this->size);
 
-	this->cached_id = loaded_textures.back().id;
+	this->cached_id = generated_textures.back().id;
+
+	return true;
+}
+bool gfoil::texture::generate(const std::string& tag) {
+
+	// unload the current texture or return if already loaded
+	if (this->cached_id != 0) {
+		for (auto& texture : generated_textures)
+			if ((texture.id == this->cached_id) && (texture.tag == tag))
+				return false;
+
+		this->unload();
+	}
+	for (auto& texture : generated_textures) {
+		if (texture.tag == tag) {
+
+			this->cached_id = texture.id;
+			texture.reference_holders++;
+
+			return false;
+		}
+	}
+
+	// it's not loaded so load it
+	generated_textures.emplace_back();
+	generated_textures.back().tag = tag;
+	generated_textures.back().reference_holders = 1;
+	generated_textures.back().generate();
+
+	this->cached_id = generated_textures.back().id;
+
+	return true;
 }
 
-void texture::bind(const glm::uint& texture_slot) {
+void gfoil::texture::bind(const glm::uint& texture_slot) {
 	if (texture_slot > 16)
 		system::log::error("Attempting to bind a texture slot over 16: " + std::to_string(texture_slot));
 
-	if (bound_textures[texture_slot] == this->cached_id)
+	if ((current_bound_texture == this->cached_id) && (active_textures[texture_slot] == this->cached_id))
 		return;
 
 	glActiveTexture(GL_TEXTURE0 + texture_slot);
 	glBindTexture(GL_TEXTURE_2D, this->cached_id);
-	bound_textures[texture_slot] = this->cached_id;
+
+	current_bound_texture = this->cached_id;
+	active_textures[texture_slot] = this->cached_id;
 }
 
-void texture::reaload_file() {
-	if (this->cached_id != 0) {
-		for (auto& texture : loaded_textures) {
-			if (texture.id == this->cached_id) {
-				texture.load_file();
-			}
-		}
-	}
-}
-
-glm::ivec2 texture::get_size() {
-	if (this->cached_id != 0) {
-		for (auto& texture : loaded_textures) {
-			if (texture.id == this->cached_id) {
-				return texture.size;
-			}
-		}
-	}
-	return glm::ivec2(0, 0);
-}
-
-unsigned int texture::get_id() { return this->cached_id; }
-
-void texture::unload() {
+void gfoil::texture::reaload_file() {
 	if (this->cached_id == 0)
 		return;
-		
-	std::lock_guard<std::mutex> lock(texture_access_mtx);
+	for (auto& texture : generated_textures)
+		if (texture.id == this->cached_id)
+			texture.load_file(this->size);
+}
 
-	for (int i = 0; i < loaded_textures.size(); i++) {
-		if (loaded_textures[i].id = this->cached_id) {
-			loaded_textures[i].reference_holders--;
-			if (loaded_textures[i].reference_holders == 0) {
-				loaded_textures[i].destroy();
-				loaded_textures.erase(loaded_textures.begin() + i);
+glm::ivec2 gfoil::texture::update_size() {
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &this->size.x);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &this->size.y);
+}
+
+unsigned int gfoil::texture::get_id() {
+	return this->cached_id; 
+}
+
+void gfoil::texture::unload() {
+	if (this->cached_id == 0)
+		return;
+
+	for (int i = 0; i < generated_textures.size(); i++) {
+		if (generated_textures[i].id = this->cached_id) {
+			generated_textures[i].reference_holders--;
+			if (generated_textures[i].reference_holders == 0) {
+				generated_textures[i].destroy();
+				generated_textures.erase(generated_textures.begin() + i);
 			}
 			this->cached_id = 0;
 			return;
@@ -102,19 +120,23 @@ void texture::unload() {
 	}
 }
 
-void texture::loaded_texture::generate() {
+void gfoil::texture::generated_texture::generate() {
 	glGenTextures(1, &this->id);
 	glBindTexture(GL_TEXTURE_2D, this->id);
-	this->load_file();
-	system::log::info("generated texture:" + this->path + " id: " + std::to_string(this->id));
+	system::log::info("generated texture:" + std::to_string(this->id));
 }
-void texture::loaded_texture::load_file() {
+void gfoil::texture::generated_texture::load_file(glm::ivec2& size) {
+
+	if (path == "")
+		return;
+
 	int width, height, format;
 
 	unsigned char* data;
 
 	stbi_set_flip_vertically_on_load(true);
 	data = stbi_load(path.c_str(), &width, &height, &format, 0);
+	size = glm::ivec2(width, height);
 
 	if (data) {
 		switch (format) {
@@ -137,10 +159,11 @@ void texture::loaded_texture::load_file() {
 	}
 	else {
 		stbi_image_free(data);
-		system::log::error("Failed to load texture: " + this->path);
+		system::log::error("failed to load texture from file: " + this->path);
 	}
+	system::log::info("loaded texture data from file: " + this->path);
 }
-void texture::loaded_texture::destroy() {
+void gfoil::texture::generated_texture::destroy() {
 	glDeleteTextures(1, &this->id);
-	system::log::warn("deleting texture:" + this->path);
+	system::log::info("deleting texture: " + std::to_string(this->id));
 }

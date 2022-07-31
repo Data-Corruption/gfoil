@@ -51,22 +51,46 @@
     <ClInclude Include="Source\graphics\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\system\device_input.h">
+    <ClInclude Include="Source\system\input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\generic_index_buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\byte_vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\graphics\vertex.h">
+    <ClInclude Include="Source\graphics\small_types\vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\system\Win64\CDialogEventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\cameras\generic_3d_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\small_types\ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\small_types\plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\blending.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\cameras\generic_2d_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\cubes\cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\culling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\depth_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\gmath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -104,13 +128,10 @@
     <ClCompile Include="Source\graphics\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\system\device_input.cpp">
+    <ClCompile Include="Source\system\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\config.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\byte_vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\generic_index_buffers.cpp">
@@ -120,6 +141,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\deps\Glad\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\cameras\generic_3d_camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\blending.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\cameras\generic_2d_camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\cubes\cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\culling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\depth_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\gmath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

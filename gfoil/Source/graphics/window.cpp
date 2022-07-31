@@ -7,63 +7,40 @@
 
 #include "../gfoil.h"
 
-window::window_data window::data;
+// public members
 
-void window::init_glfw() {
-	glfwSetErrorCallback([](int error, const char* description) {
-		system::log::error("GLFW: " + static_cast<std::string>(description));
-	});
+GLFWwindow* gfoil::window::handle;
 
-	if (!glfwInit())
-		system::log::error("GLFW: failed to initialize!");
+std::string gfoil::window::title = "";
+std::string gfoil::window::icon_path = "";
 
-	data.glfw_initialized = true;
-}
-void window::init_glad() {
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		glfwTerminate();
-		system::log::error("GLAD: failed to initialize!");
-	}
-	data.glad_initialized = true;
-}
+glm::ivec2 gfoil::window::position;
+glm::ivec2 gfoil::window::size = glm::vec2(1280.0f, 720.0f);
 
-void window::register_callbacks() {
+glm::vec4 gfoil::window::clear_color = { 0.2f, 0.3f, 0.3f, 1.0f };
 
-	glfwSetCursorPosCallback(data.handle, [](GLFWwindow* window, double xpos, double ypos) {
-		data.mouse_position = glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos));
-	});
-	glfwSetWindowPosCallback(data.handle, [](GLFWwindow* window, int xpos, int ypos) {
-		data.position = glm::ivec2(xpos, ypos);
-	});
-	glfwSetFramebufferSizeCallback(data.handle, [](GLFWwindow* window, int width, int height) {
-		glViewport(0, 0, width, height); // maybe not needed
-		data.size = glm::ivec2(width, height);
-		data.resized = true;
-	});
-	glfwSetWindowMaximizeCallback(data.handle, [](GLFWwindow* window, int maximized) {
-		if (maximized) {
-			data.maximized = true;
-		} else {
-			data.maximized = false;
-		}
-		data.resized = true;
-	});
-	glfwSetWindowCloseCallback(data.handle, [](GLFWwindow* window) {
-		data.asking_to_close = true;
+// private members
 
-		config::data["window_max"] = std::to_string(data.maximized);
-		config::data["window_pos_x"] = std::to_string(data.position.x);
-		config::data["window_pos_y"] = std::to_string(data.position.y);
-		config::data["window_size_x"] = std::to_string(data.size.x);
-		config::data["window_size_y"] = std::to_string(data.size.y);
-		config::save_config();
+std::string gfoil::window::last_title;
+glm::ivec2 gfoil::window::last_position;
+glm::ivec2 gfoil::window::last_size;
 
-		glfwSetWindowShouldClose(window, GLFW_FALSE);
-	});
+bool gfoil::window::focused;
+bool gfoil::window::resized;
+bool gfoil::window::maximized;
+bool gfoil::window::minimized;
+bool gfoil::window::cursor;
 
-}
+bool gfoil::window::asking_to_close = false;
+bool gfoil::window::close_confirm = false;
+bool gfoil::window::close_cancel = false;
 
-void window::generate(
+bool gfoil::window::glfw_initialized = false;
+bool gfoil::window::glad_initialized = false;
+
+// methods
+
+void gfoil::window::generate(
 	std::string title,
 	std::string icon_path,
 	glm::ivec2 size,
@@ -79,14 +56,18 @@ void window::generate(
 	bool transparent_buffer
 ) {
 
-	data.title = title;
-	data.size = size;
-	data.position = position;
+	window::position = position;
+	window::size = size;
+	window::title = title;
 
-	if (!gfoil::data.initalized)
-		gfoil::pre_window_init();
+	window::last_position = position;
+	window::last_size = size;
+	window::last_title = title;
 
-	if (!data.glfw_initialized)
+	window::maximized = maximized;
+	window::minimized = false;
+
+	if (!glfw_initialized)
 		init_glfw();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -107,14 +88,14 @@ void window::generate(
 
 	// --- create the window ---
 
-	data.handle = glfwCreateWindow(size.x, size.y, title.c_str(), NULL, NULL);
-	if (!data.handle) { 
+	handle = glfwCreateWindow(size.x, size.y, title.c_str(), NULL, NULL);
+	if (!handle) { 
 		glfwTerminate(); 
 		system::log::error("GLFW: failed to create window!"); 
 	}
-	glfwMakeContextCurrent(data.handle);
+	glfwMakeContextCurrent(handle);
 
-	if (!data.glad_initialized)
+	if (!glad_initialized)
 		init_glad();
 
 	set_icon(icon_path);
@@ -122,91 +103,150 @@ void window::generate(
 	glfwSwapInterval(-0);
 
 	glViewport(0, 0, size.x, size.y);
-	glClearColor(data.clear_color.x, data.clear_color.y, data.clear_color.z, data.clear_color.w);
+	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 
 	// set position
 	if (center_window) {
 		int monitorX, monitorY;
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		glfwGetMonitorPos(glfwGetPrimaryMonitor(), &monitorX, &monitorY);
-		set_position(glm::ivec2(monitorX + (mode->width - size.x) / 2, monitorY + (mode->height - size.y) / 2));
+		glfwSetWindowPos(handle, monitorX + (mode->width - size.x) / 2, monitorY + (mode->height - size.y) / 2);
 	} else {
-		set_position(data.position);
+		glfwSetWindowPos(handle, position.x, position.y);
 	}
 
-	glfwShowWindow(data.handle);
-
-	if (!gfoil::data.initalized)
-		gfoil::post_window_init();
-
-	gfoil::data.initalized = true;
+	glfwShowWindow(handle);
 
 	system::log::info("GLFW: successfully created window!");
 
 }
 
-void window::destroy() {
-	glfwDestroyWindow(data.handle);
+void gfoil::window::destroy() {
+	glfwDestroyWindow(handle);
 }
 
-void window::poll_events() {
+void gfoil::window::poll_events() {
 
-	if (data.asking_to_close) {
-		if (data.close_confirm) {
-			glfwSetWindowShouldClose(data.handle, GLFW_TRUE);
-		}
-		else if (data.close_cancel) {
-			data.asking_to_close = false;
-			data.close_cancel = false;
-			glfwSetWindowShouldClose(data.handle, GLFW_FALSE);
+	if (asking_to_close) {
+		if (close_confirm)
+			glfwSetWindowShouldClose(handle, GLFW_TRUE);
+		if (close_cancel) {
+			asking_to_close = false;
+			close_cancel = false;
+			glfwSetWindowShouldClose(handle, GLFW_FALSE);
 		}
 	}
 
-	data.resized = false;
-	glfwPollEvents();
-}
+	if (last_position != position)
+		glfwSetWindowPos(handle, position.x, position.y);
+	if (last_title != title)
+		glfwSetWindowTitle(handle, title.c_str());
 
-void window::swap_buffers() {
-	glfwSwapBuffers(data.handle);
+	resized = false;
+	if (last_size != size) {
+		glfwSetWindowSize(handle, size.x, size.y);
+		glViewport(0, 0, size.x, size.y);
+		resized = true;
+	}
+
+	glfwPollEvents();
+
+	last_position = position;
+	last_size = size;
+	last_title = title;
+
+}
+void gfoil::window::swap_buffers() {
+	glfwSwapBuffers(handle);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-// --- setters ---
-void window::set_title(std::string title) {
-	data.title = title;
-	glfwSetWindowTitle(data.handle, title.c_str());
-}
-void window::set_position(glm::ivec2 position) {
-	data.position = position;
-	glfwSetWindowPos(data.handle, position.x, position.y);
-}
-void window::set_icon(std::string path) {
+void gfoil::window::set_icon(std::string path) {
 	GLFWimage image;
 	image.pixels = stbi_load(path.c_str(), &image.width, &image.height, 0, 4);
-	glfwSetWindowIcon(data.handle, 1, &image);
+	glfwSetWindowIcon(handle, 1, &image);
 	stbi_image_free(image.pixels);
 }
 
-// --- getters ---
-GLFWwindow* window::get_handle()  { return data.handle; }
-std::string window::get_title()   { return data.title; }
-glm::ivec2 window::get_position() { return data.position; }
-glm::ivec2 window::get_size()     { return data.size; }
+void gfoil::window::toggle_maximization() {
+	maximized = !maximized;
+	if (!minimized && maximized)
+		glfwMaximizeWindow(handle);
+	if (!minimized && !maximized)
+		glfwRestoreWindow(handle);
+}
+void gfoil::window::toggle_minimization() {
+	minimized = !minimized;
+	if (minimized)
+		glfwIconifyWindow(handle);
+	if (!minimized && maximized)
+		glfwMaximizeWindow(handle);
+	if (!minimized && !maximized)
+		glfwRestoreWindow(handle);
+}
 
-bool window::is_open() { return !glfwWindowShouldClose(data.handle);  }
-
-// --- flags ---
-bool window::flag_resized()          { return data.resized; }
-bool window::flag_maximized()        { return data.maximized; }
-bool window::flag_minimized()        { return data.minimized; }
-bool window::flag_glfw_initialized() { return data.glfw_initialized; }
-bool window::flag_asking_to_close()  { return data.asking_to_close; }
-
-// true = close, false = cancel close
-void window::close_response(bool value) {
+bool gfoil::window::is_open() { return !glfwWindowShouldClose(handle); }
+bool gfoil::window::is_focused() { return focused; }
+bool gfoil::window::is_resized() { return resized; }
+bool gfoil::window::is_minimized() { return minimized; }
+bool gfoil::window::is_maximized() { return maximized; }
+bool gfoil::window::is_cursor_enabled() { return cursor; }
+bool gfoil::window::is_asking_to_close()  { return asking_to_close; }
+void gfoil::window::close_response(bool value) {
 	if (value) {
-		data.close_confirm = true;
+		close_confirm = true;
 	} else {
-		data.close_cancel = true;
+		close_cancel = true;
 	}
+}
+
+void gfoil::window::init_glfw() {
+	glfwSetErrorCallback([](int error, const char* description) {
+		system::log::error("GLFW: " + static_cast<std::string>(description));
+		});
+
+	if (!glfwInit())
+		system::log::error("GLFW: failed to initialize!");
+
+	glfw_initialized = true;
+}
+void gfoil::window::init_glad() {
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		glfwTerminate();
+		system::log::error("GLAD: failed to initialize!");
+	}
+	glad_initialized = true;
+}
+
+void gfoil::window::register_callbacks() {
+	glfwSetWindowPosCallback(handle, [](GLFWwindow* window, int xpos, int ypos) {
+		position = glm::ivec2(xpos, ypos);
+	});
+	glfwSetFramebufferSizeCallback(handle, [](GLFWwindow* window, int width, int height) {
+		glViewport(0, 0, width, height);
+		size = glm::ivec2(width, height);
+		resized = true;
+	});
+	glfwSetWindowMaximizeCallback(handle, [](GLFWwindow* window, int maximized) {
+		window::maximized = false;
+		if (maximized)
+			window::maximized = true;
+		resized = true;
+	});
+	glfwSetWindowIconifyCallback(handle, [](GLFWwindow* window, int minimized) {
+		window::minimized = false;
+		if (minimized)
+			window::minimized = true;
+	});
+	glfwSetWindowCloseCallback(handle, [](GLFWwindow* window) {
+		asking_to_close = true;
+		config::data["window_max"] = std::to_string(maximized);
+		config::data["window_min"] = std::to_string(minimized);
+		config::data["window_pos_x"] = std::to_string(position.x);
+		config::data["window_pos_y"] = std::to_string(position.y);
+		config::data["window_size_x"] = std::to_string(size.x);
+		config::data["window_size_y"] = std::to_string(size.y);
+		config::save();
+		glfwSetWindowShouldClose(window, GLFW_FALSE);
+	});
 }

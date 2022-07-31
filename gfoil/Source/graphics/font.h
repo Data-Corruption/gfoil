@@ -6,79 +6,89 @@
 #include <glad/glad.h> 
 #include <glm/glm.hpp>
 
+#include "small_types/vertex.h"
+
+#include "cameras/generic_2d_camera.h"
+#include "cameras/generic_3d_camera.h"
 #include "shader.h"
+#include "texture.h"
 #include "buffer_array_object.h"
 #include "generic_batch_renderer.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-const glm::uint atlas_pixel_height = 64;
+namespace gfoil {
 
-/// This is basically a tint vertex quad batch renderer that generates an atlas from a ".ttf" file.
-/// Use get_char() to build vertex data and buffer, flush it like any other batch renderer, only difference 
-/// is you dont bind a texture or shader it does that automatically.
-class font {
-public:
+	/// glyph info and atlas with a batch renderer, all you need to do is bring the vertices ;p batch limit is 10k quads
+	/// atlas and character info is shared. When drawing if no camera is given it draws using 2d screen coords with no offsets
+	class font {
+	public:
 
-	glm::vec2 atlas_size;
+		struct character_info {
+			glm::vec2 advance;
+			glm::vec2 bitmap_size;
+			glm::vec2 bearing;
+			// x offset of glyph in texture coordinates
+			float texture_offset;
+		};
 
-	struct character_info {
-		float ax;     // advance.x
-		float bw, bh; // bitmap.width, bitmap.rows
-		float bl, bt; // bitmap_left, bitmap_top
-		float tx;     // x offset of glyph in texture coordinates
-	};
+		struct character_set {
+			std::array<character_info, 95> characters;
+			glm::uint reference_holders;
+			std::string path = "";
+			texture atlas;
+		};
 
-	// ----==== Methods ====----
+		// ----==== Members ====----
 
-	void load(std::string path, bool is_3d);
-	void unload();
+		static const glm::uint atlas_pixel_height = 64;
+		static std::vector<character_set> character_sets;
 
-	// binds font shader, sets uniforms, needs window size to convert screen coords to openl coords
-	void bind(float scale);
+		glm::uint projection_uniform_id = 0;
+		glm::uint transform_uniform_id = 0;
 
-	character_info get_char(char id);
+		bool is_monospaced = false;
+		glm::vec2 atlas_size;
+		std::string path = "";
 
-	// max buffer before flush is is 1k
-	void buffer(std::vector<vertex::tint>& data);
-	// send data to gpu
-	void flush();
-	// draw flushed buffer
-	void draw(float scale);
-	// all in one, no need to call anything else
-	void draw(std::vector<vertex::tint>& data, float scale);
+		generic_batch_renderer renderer;
+		shader font_shader;
 
-private:
+		// ----==== Methods ====----
 
-	struct loaded_font {
+		void generate(std::string target_path);
+		void destroy();
+
+		// binds font shader, sets uniforms, activates atlas texture.
+		void bind();
+		void bind(generic_2d_camera& target_camera);
+		void bind(generic_3d_camera& target_camera);
+
+		character_info& get_char(char target);
+
+		// batch quad limit is is 10k
+		void buffer(std::vector<vertex::tint>& data);
+		// send data to gpu
+		void flush();
+		// binds then draws flushed buffer
+		void draw();
+		void draw(generic_2d_camera& target_camera);
+		void draw(generic_3d_camera& target_camera);
+		// all in one, no need to call anything else
+		void draw(std::vector<vertex::tint>& data);
+		void draw(std::vector<vertex::tint>& data, generic_2d_camera& target_camera);
+		void draw(std::vector<vertex::tint>& data, generic_3d_camera& target_camera);
+
+	private:
+
+		void load_atlas_and_char_set();
 
 		static FT_Library freetype;
 		static bool is_freetype_initialized;
 
-		glm::uint reference_holders;
-		glm::uint atlas_id;
-		std::string path;
-		std::array<character_info, 95> characters;
-
-		glm::vec2 generate();
-		void destroy();
+		glm::uint cached_atlas_id;
 
 	};
 
-	static std::vector<loaded_font> loaded_fonts;
-
-	generic_batch_renderer renderer;
-	shader font_shader;
-
-	glm::uint cached_atlas_id = 0;
-	glm::uint scale_transform_uniform_id = 0;
-	glm::uint window_transform_uniform_id = 0;
-
-	bool is_3d;
-	bool is_monospaced;
-
-	void load_shared_data(std::string path);
-	void unload_shared_data();
-
-};
+}

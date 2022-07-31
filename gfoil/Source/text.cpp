@@ -7,69 +7,63 @@ const std::string valid_hex_characters = "0123456789abcdef";
 
 // ----==== Constructors / Deconstructor ====----
 
-text::text() {
+gfoil::text::text() {
 	
 }
 
-text::text(const std::string& input) {
+gfoil::text::text(const std::string& input) {
 	this->string = input;
 }
-text::text(const char* input) {
+gfoil::text::text(const char* input) {
 	this->string = std::string(input);
 }
-text::text(const byte_vector& input) {
-	this->string = byte_vector_to_string(input);
-}
-text::text(std::vector<text>& input) {
+gfoil::text::text(std::vector<text>& input) {
 	this->string = "";
 	for (int i = 0; i < input.size(); i++)
 		this->string.append(input[i].string);
 }
 
-text::~text() {
+gfoil::text::~text() {
 
 }
 
 // ----==== Operator Overloaders ====----
 
-void text::operator = (const std::string& input) {
+void gfoil::text::operator = (const std::string& input) {
 	this->string = input;
 }
-void text::operator = (const char* input) {
+void gfoil::text::operator = (const char* input) {
 	this->string = std::string(input);
 }
-void text::operator = (const byte_vector& input) {
-	this->string = byte_vector_to_string(input);
-}
-void text::operator = (std::vector<text>& input) {
+void gfoil::text::operator = (std::vector<text>& input) {
 	this->string = "";
 	for (int i = 0; i < input.size(); i++)
 		this->string.append(input[i].string);
 }
 
-void text::operator += (const text& input) {
+void gfoil::text::operator += (const text& input) {
 	this->string.append(input.string);
 }
-bool text::operator == (const text& input) {
+bool gfoil::text::operator == (const text& input) {
 	if (this->string == input.string)
 		return true;
 	return false;
 }
-bool text::operator != (const text& input) {
+bool gfoil::text::operator != (const text& input) {
 	if (this->string != input.string)
 		return true;
 	return false;
 }
 
-std::string text::operator + (const text& input) {
+std::string gfoil::text::operator + (const text& input) {
 	return (this->string + input.string);
 }
 
-text::operator std::string() {
+gfoil::text::operator std::string() {
 	return this->string;
 }
 
-char& text::operator [](int index) {
+char& gfoil::text::operator [](int index) {
 	if (index >= size())
 		system::log::error("Text index out of range");
 	return string[index];
@@ -77,23 +71,16 @@ char& text::operator [](int index) {
 
 // ----==== Methods ====----
 
-int text::size() {
+int gfoil::text::size() {
 	return (int)this->string.size();
 }
 
-void text::clear() {
+void gfoil::text::clear() {
 	this->string.clear();
 	this->string.shrink_to_fit();
 }
 
-byte_vector text::to_byte_vector() {
-	byte_vector result;
-	for (int i = 0; i < this->size(); i++)
-		result.emplace_back(this->string[i]);
-	return result;
-}
-
-void text::split(std::vector<text>& output, char delimiter) {
+void gfoil::text::split(std::vector<text>& output, char delimiter) {
 	output.clear();
 	output.shrink_to_fit();
 
@@ -104,7 +91,7 @@ void text::split(std::vector<text>& output, char delimiter) {
 		output.emplace_back(segment);
 }
 
-std::string text::stem() {
+std::string gfoil::text::stem() {
 	std::vector<text> parts;
 	this->split(parts, '.');
 
@@ -115,7 +102,7 @@ std::string text::stem() {
 	}
 }
 
-int text::char_count(char target) {
+int gfoil::text::char_count(char target) {
 	int count = 0;
 	for (int i = 0; i < this->size(); i++)
 		if (this->string[i] == target)
@@ -124,7 +111,7 @@ int text::char_count(char target) {
 	return count;
 }
 
-void text::contains(std::vector<int>& output, std::string& target) {
+void gfoil::text::contains(std::vector<int>& output, std::string& target) {
 	output.clear();
 	output.shrink_to_fit();
 
@@ -145,7 +132,7 @@ void text::contains(std::vector<int>& output, std::string& target) {
 	}
 }
 
-bool text::contains(const std::string& target) {
+bool gfoil::text::contains(const std::string& target) {
 	for (int i = 0; i < this->size(); i++) {
 		if ((target.size() + i) > this->size())
 			return false;
@@ -164,8 +151,8 @@ bool text::contains(const std::string& target) {
 	return false;
 }
 
-void text::build_buffer() {
-	if (font == nullptr)
+void gfoil::text::build_buffer() {
+	if (font_renderer == nullptr)
 		system::log::error("Text: Trying to build buffer with no font set");
 
 	this->buffer_data.clear();
@@ -184,37 +171,38 @@ void text::build_buffer() {
 
 		// new line code
 		if (this->string[i] == '\n') {
-			cursor = glm::vec2(this->position.x, this->position.y - (line * (atlas_pixel_height + this->spacing.y)));
+			float vert_change = line * (scale * (font::atlas_pixel_height + this->spacing.y));
+			cursor = glm::vec2(this->position.x, this->position.y - vert_change);
 			line++;
 			continue;
 		}
 
 		// if outside mask skip
 
-		font::character_info c = this->font->get_char(this->string[i]);
-		glm::vec2 cp = glm::vec2(cursor.x + c.bl, -cursor.y - c.bt);
-		glm::vec2 cs = glm::vec2(c.bw, c.bh);
+		font::character_info c = this->font_renderer->get_char(this->string[i]);
+		glm::vec2 cp = glm::vec2(cursor.x + (c.bearing.x * scale), -cursor.y - (c.bearing.y * scale));
+		glm::vec2 cs = glm::vec2(c.bitmap_size.x * scale, c.bitmap_size.y * scale);
 
-		cursor.x += c.ax;
+		cursor.x += c.advance.x * scale;
 		if (this->string[i] == '	')
-			cursor.x += c.ax * 3.0f;
+			cursor.x += (c.advance.x * scale) * 3.0f;
 
 		if (!cs.x || !cs.y)
 			continue;
 
-		float txcw = c.bw / this->font->atlas_size.x;
-		float txch = c.bh / this->font->atlas_size.y;
+		float txcw = c.bitmap_size.x / this->font_renderer->atlas_size.x;
+		float txch = c.bitmap_size.y / this->font_renderer->atlas_size.y;
 
 		//                                     /px           /py                           /tx           /ty   /ta 
-		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y - cs.y, 0.0f), glm::vec3(c.tx,        txch, 1.0f), color }); // bl
-		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y - cs.y, 0.0f), glm::vec3(c.tx + txcw, txch, 1.0f), color }); // br
-		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y,        0.0f), glm::vec3(c.tx + txcw, 0.0f, 1.0f), color }); // tr
-		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y,        0.0f), glm::vec3(c.tx,        0.0f, 1.0f), color }); // tl
+		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y - cs.y, 0.0f), glm::vec3(c.texture_offset,        txch, 1.0f), color }); // bl
+		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y - cs.y, 0.0f), glm::vec3(c.texture_offset + txcw, txch, 1.0f), color }); // br
+		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y,        0.0f), glm::vec3(c.texture_offset + txcw, 0.0f, 1.0f), color }); // tr
+		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y,        0.0f), glm::vec3(c.texture_offset,        0.0f, 1.0f), color }); // tl
 
 	}
 }
 
-void text::unembed_color_codes() {
+void gfoil::text::unembed_color_codes() {
 
 	int i = 0;
 
@@ -261,7 +249,7 @@ void text::unembed_color_codes() {
 		}
 	}
 }
-void text::embed_color_codes() {
+void gfoil::text::embed_color_codes() {
 
 	// create 2 vectors, one with indices, one with string hex codes
 
@@ -272,10 +260,16 @@ void text::embed_color_codes() {
 
 }
 
-void text::draw() {
-	if (this->font == nullptr)
+void gfoil::text::draw() {
+	if (this->font_renderer == nullptr)
 		system::log::error("Attempting to draw text without having a font set");
 	this->build_buffer();
-	this->font->draw(this->buffer_data, scale);
+	this->font_renderer->draw(this->buffer_data);
 }
 
+void gfoil::text::draw(generic_2d_camera& camera) {
+	if (this->font_renderer == nullptr)
+		system::log::error("Attempting to draw text without having a font set");
+	this->build_buffer();
+	this->font_renderer->draw(this->buffer_data, camera);
+}

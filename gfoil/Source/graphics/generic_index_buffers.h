@@ -2,9 +2,15 @@
 
 #include "buffer.h"
 
-struct generic_index_buffers {
+namespace gfoil {
 
-	// bl, br, tr, tr, tl, bl
-	static buffer quad_1k;
+	struct generic_index_buffers {
 
-};
+		// bl, br, tr, tr, tl, bl
+		static buffer quad_10k;
+
+		static void generate_index_buffers();
+
+	};
+
+}

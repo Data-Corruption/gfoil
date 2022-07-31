@@ -2,9 +2,10 @@
 
 #include "../system/system.h"
 
-#include <glad/glad.h>
-
 const std::string shader_folder = "app/shaders";
+
+// i'm lazy and there are too many methods
+using namespace gfoil;
 
 glm::uint shader::currently_bound_shader;
 std::vector<shader::loaded_shader> shader::loaded_shaders;

@@ -7,6 +7,4 @@ x64/
 
 gfoil/Source/glad.c
 
-gfoil/Source/graphics/stb_image.h
-
 build_include.ps1

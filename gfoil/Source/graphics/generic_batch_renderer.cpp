@@ -2,7 +2,7 @@
 
 #include "../system/system.h"
 
-void generic_batch_renderer::generate(
+void gfoil::generic_batch_renderer::generate(
 	unsigned int count,
 	enum primative_type primative,
 	enum vertex::type vertex,
@@ -57,12 +57,12 @@ void generic_batch_renderer::generate(
 	}
 
 }
-void generic_batch_renderer::destroy() {
+void gfoil::generic_batch_renderer::destroy() {
 	this->vertex_buffer.destroy();
 	this->bao.destroy();
 }
 
-void generic_batch_renderer::flush() {
+void gfoil::generic_batch_renderer::flush() {
 	if (this->current_batch_size == 0)
 		return;
 
@@ -78,7 +78,7 @@ void generic_batch_renderer::flush() {
 	this->current_batch_size = 0;
 }
 
-void generic_batch_renderer::draw() {
+void gfoil::generic_batch_renderer::draw() {
 	if (this->last_batch_size == 0)
 		return;
 
@@ -95,7 +95,7 @@ void generic_batch_renderer::draw() {
 	this->bao.unbind();
 }
 
-void generic_batch_renderer::buffer_data(std::vector<vertex::texture>& vertices) {
+void gfoil::generic_batch_renderer::buffer_data(std::vector<vertex::texture>& vertices) {
 	if (vertices.size() == 0) {
 		system::log::warn("buffering nothing to: " + std::to_string(vertex_buffer.id));
 		return;
@@ -117,7 +117,7 @@ void generic_batch_renderer::buffer_data(std::vector<vertex::texture>& vertices)
 	std::copy(vertices.begin(), vertices.end(), this->data_texture.begin() + this->current_batch_size);
 	this->current_batch_size += (unsigned int)vertices.size();
 }
-void generic_batch_renderer::buffer_data(std::vector<vertex::tint>& vertices) {
+void gfoil::generic_batch_renderer::buffer_data(std::vector<vertex::tint>& vertices) {
 	if (vertices.size() == 0) { 
 		system::log::warn("buffering nothing to: " + std::to_string(vertex_buffer.id));
 		return;
@@ -139,7 +139,7 @@ void generic_batch_renderer::buffer_data(std::vector<vertex::tint>& vertices) {
 	std::copy(vertices.begin(), vertices.end(), this->data_tint.begin() + this->current_batch_size);
 	this->current_batch_size += (unsigned int)vertices.size();
 }
-void generic_batch_renderer::buffer_data(std::vector<vertex::color>& vertices) {
+void gfoil::generic_batch_renderer::buffer_data(std::vector<vertex::color>& vertices) {
 	if (vertices.size() == 0) {
 		system::log::warn("buffering nothing to: " + std::to_string(vertex_buffer.id));
 		return;

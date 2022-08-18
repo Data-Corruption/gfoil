@@ -46,7 +46,7 @@ namespace gfoil {
 		static std::vector<character_set> character_sets;
 
 		glm::uint projection_uniform_id = 0;
-		glm::uint transform_uniform_id = 0;
+		glm::uint view_uniform_id = 0;
 
 		bool is_monospaced = false;
 		glm::vec2 atlas_size;

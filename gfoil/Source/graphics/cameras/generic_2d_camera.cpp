@@ -4,11 +4,13 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../../gmath.h"
 #include "../window.h"
 #include "../../system/input.h"
 
-void gfoil::generic_2d_camera::generate(glm::vec2 starting_position, float zoom) {
+void gfoil::generic_2d_camera::generate(glm::vec2 starting_position, float starting_zoom) {
 	position = starting_position;
+	zoom = starting_zoom;
 }
 void gfoil::generic_2d_camera::destroy() {
 
@@ -16,21 +18,16 @@ void gfoil::generic_2d_camera::destroy() {
 
 void gfoil::generic_2d_camera::update() {
 
+	// position
 	bool w = input::keys[0x57], a = input::keys[0x41], s = input::keys[0x53], d = input::keys[0x44], x_change = false, y_change = false;
 
-	if (a != d)
-		x_change = true;
-	if (w != s)
-		y_change = true;
+	if (a != d) { x_change = true; }
+	if (w != s) { y_change = true; }
 
-	if (w)
-		velocity.y += velocity_change_per_tick; // w
-	if (a)
-		velocity.x -= velocity_change_per_tick; // a
-	if (s)
-		velocity.y -= velocity_change_per_tick; // s
-	if (d)
-		velocity.x += velocity_change_per_tick; // d
+	if (w) { velocity.y += velocity_change_per_tick; }
+	if (a) { velocity.x -= velocity_change_per_tick; }
+	if (s) { velocity.y -= velocity_change_per_tick; }
+	if (d) { velocity.x += velocity_change_per_tick; }
 
 	float max_v = max_velocity;
 	if (input::keys[VK_LSHIFT])
@@ -44,6 +41,22 @@ void gfoil::generic_2d_camera::update() {
 
 	if ((velocity.x != 0.0f) && !x_change) { lower_velocity(velocity.x, velocity_change_per_tick); }
 	if ((velocity.y != 0.0f) && !y_change) { lower_velocity(velocity.y, velocity_change_per_tick); }
+
+	glm::vec2 window_half = glm::vec2((float)window::size.x / 2, (float)window::size.y / 2);
+
+	// mask
+	mask[0] = glm::vec2(position.x - window_half.x, position.y - window_half.y);    // bl
+	mask[1] = glm::vec2(position.x + window_half.x, position.y - window_half.y);   // br
+	mask[2] = glm::vec2(position.x + window_half.x, position.y + window_half.y);  // tr
+	mask[3] = glm::vec2(position.x - window_half.x, position.y + window_half.y); // tl
+
+	// view
+	view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(-position.x, -position.y, 0.0f));
+	view = glm::scale(view, glm::vec3(zoom, zoom, 1.0f));
+
+	// projection
+	glm::mat4 projection = math::ortho(-window_half.x, window_half.x, -window_half.y, window_half.y, -1.0f, 1.0f);
 
 }
 

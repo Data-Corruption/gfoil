@@ -17,6 +17,8 @@ namespace gfoil {
 			const float& zNear,
 			const float& zFar);
 
+		extern bool vec3_in_front_of_plane(plane& plane, glm::vec3& vec3);
+
 		extern bool ray_triangle_intersect(ray& ray, glm::vec3& v0, glm::vec3& v1, glm::vec3& v2, glm::dvec3* result);
 
 	}

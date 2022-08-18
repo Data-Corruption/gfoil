@@ -18,6 +18,13 @@ glm::mat4 gfoil::math::ortho(
 	return result;
 }
 
+bool gfoil::math::vec3_in_front_of_plane(plane& plane, glm::vec3& vec3) {
+	// if half space >= 0.0
+	if (((plane.normal.x * vec3.x) + (plane.normal.y * vec3.y) + (plane.normal.z * vec3.z) + plane.distance) >= 0.0)
+		return true;
+	return false;
+}
+
 bool gfoil::math::ray_triangle_intersect(ray& ray, glm::vec3& v0, glm::vec3& v1, glm::vec3& v2, glm::dvec3* result) {
 	constexpr auto EPSILON = 0.000001;
 

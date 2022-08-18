@@ -38,7 +38,7 @@ bool gfoil::cube::vertex_in_front_of_plane(plane& plane, glm::vec3& vertex) {
 }
 
 // ---- ray stuff ----
-bool gfoil::cube::hit_by_ray(ray& ray, int* side_hit, float* distance) {
+bool gfoil::cube::hit_by_ray(ray& ray, int* face_hit, float* distance) {
 	glm::dvec3 intersection;
 	bool hit = false;
 
@@ -52,7 +52,7 @@ bool gfoil::cube::hit_by_ray(ray& ray, int* side_hit, float* distance) {
 			&intersection))
 		{
 			*distance = (float)intersection.x;
-			*side_hit = i;
+			*face_hit = i;
 			hit = true;
 			continue;
 		}
@@ -64,7 +64,7 @@ bool gfoil::cube::hit_by_ray(ray& ray, int* side_hit, float* distance) {
 			&intersection))
 		{
 			*distance = (float)intersection.x;
-			*side_hit = i;
+			*face_hit = i;
 			hit = true;
 			continue;
 		}

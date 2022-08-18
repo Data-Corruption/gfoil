@@ -31,7 +31,7 @@ void gfoil::font::generate(std::string target_path) {
 	// load font shader
 	font_shader.load("font");
 	font_shader.bind();
-	transform_uniform_id = font_shader.get_uniform_id("u_transform");
+	view_uniform_id = font_shader.get_uniform_id("u_view");
 	projection_uniform_id = font_shader.get_uniform_id("u_projection");
 	font_shader.set_uniform(font_shader.get_uniform_id("u_texture"), (unsigned int)1);
 
@@ -59,12 +59,13 @@ void gfoil::font::bind() {
 
 	this->font_shader.bind();
 
-	// translate
-	glm::mat4 transform = glm::mat4(1.0f);
-	this->font_shader.set_uniform(this->transform_uniform_id, false, transform);
+	// view
+	glm::mat4 view = glm::mat4(1.0f);
+	this->font_shader.set_uniform(this->view_uniform_id, false, view);
 
 	// projection
-	glm::mat4 projection = math::ortho(0.0f, (float)window::size.x, -(float)window::size.y, 0.0f, -1.0f, 1.0f);
+	glm::vec2 window_half = glm::vec2((float)window::size.x / 2, (float)window::size.y / 2);
+	glm::mat4 projection = math::ortho(-window_half.x, window_half.x, -window_half.y, window_half.y, -1.0f, 1.0f);
 	this->font_shader.set_uniform(this->projection_uniform_id, false, projection);
 
 	// atlas
@@ -77,15 +78,10 @@ void gfoil::font::bind(generic_2d_camera& target_camera) {
 
 	this->font_shader.bind();
 
-	// translate
-	glm::mat4 transform = glm::mat4(1);
-	transform = glm::translate(transform, glm::vec3(-target_camera.position.x, -target_camera.position.y, 0.0f));
-	transform = glm::scale(transform, glm::vec3(target_camera.zoom, target_camera.zoom, 1.0f));
-	this->font_shader.set_uniform(this->transform_uniform_id, false, transform);
-
+	// view
+	this->font_shader.set_uniform(this->view_uniform_id, false, target_camera.view);
 	// projection
-	glm::mat4 projection = math::ortho(0.0f, (float)window::size.x, -(float)window::size.y, 0.0f, -1.0f, 1.0f);
-	this->font_shader.set_uniform(this->projection_uniform_id, false, projection);
+	this->font_shader.set_uniform(this->projection_uniform_id, false, target_camera.projection);
 	
 	// atlas
 	for (auto& character_set : character_sets)
@@ -97,14 +93,10 @@ void gfoil::font::bind(generic_3d_camera& target_camera) {
 
 	this->font_shader.bind();
 
-	// translate
-	glm::mat4 transform = glm::mat4(1);
-	transform = glm::translate(transform, glm::vec3(-target_camera.position.x, -target_camera.position.y, -target_camera.position.z));
-	this->font_shader.set_uniform(this->transform_uniform_id, false, transform);
-
+	// view
+	this->font_shader.set_uniform(this->view_uniform_id, false, target_camera.view);
 	// projection
-	//glm::mat4 projection = 
-	//this->font_shader.set_uniform(this->projection_uniform_id, false, projection);
+	this->font_shader.set_uniform(this->projection_uniform_id, false, target_camera.projection);
 
 	// atlas
 	for (auto& character_set : character_sets)

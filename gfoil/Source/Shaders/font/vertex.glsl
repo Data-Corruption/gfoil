@@ -1,15 +1,16 @@
 #version 330 core
-layout (location = 0) in vec2 a_position;
+layout (location = 0) in vec3 a_position;
 layout (location = 1) in vec3 a_texture_coords;
-layout (location = 1) in vec3 a_color;
+layout (location = 2) in vec3 a_color;
 
 out vec3 v_texture_coords;
-out vec4 v_color;
+out vec3 v_color;
 
-uniform vec2 u_offset;
+uniform mat4 u_view;
+uniform mat4 u_projection;
 
 void main() {
     v_texture_coords = a_texture_coords;
-    v_color = vec4(a_color, 1.0);
-    gl_Position = vec4(a_position.x - u_offset.x, a_position.y - u_offset.y, 0.0, 1.0);
+    v_color = a_color;
+    gl_Position = u_projection * u_view * vec4(a_position, 1.0);
 }

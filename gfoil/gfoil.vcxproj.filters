@@ -81,9 +81,6 @@
     <ClInclude Include="Source\graphics\cameras\generic_2d_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\graphics\cubes\cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\graphics\culling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -91,6 +88,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\gmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\shapes\cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\graphics\shapes\quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -149,12 +152,6 @@
     <ClCompile Include="Source\graphics\blending.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\graphics\cameras\generic_2d_camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\graphics\cubes\cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\graphics\culling.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -162,6 +159,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\gmath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\shapes\cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\shapes\quad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\graphics\cameras\generic_2d_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

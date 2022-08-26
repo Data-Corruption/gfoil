@@ -25,6 +25,10 @@ bool gfoil::math::vec3_in_front_of_plane(plane& plane, glm::vec3& vec3) {
 	return false;
 }
 
+bool gfoil::math::vec2_in_rect(glm::vec2 point, glm::vec2& bl, glm::vec2& tr) {
+	return (((point.y < tr.y) && (point.y > bl.y)) && ((point.x < tr.x) && (point.x > bl.x)));
+}
+
 bool gfoil::math::ray_triangle_intersect(ray& ray, glm::vec3& v0, glm::vec3& v1, glm::vec3& v2, glm::dvec3* result) {
 	constexpr auto EPSILON = 0.000001;
 
@@ -65,4 +69,19 @@ bool gfoil::math::ray_triangle_intersect(ray& ray, glm::vec3& v0, glm::vec3& v1,
 	if (result->x < 0.0)
 		return false;
 	return true;
+}
+
+bool gfoil::math::ray_rect_intersect(ray& ray, glm::vec3& bl, glm::vec3& br, glm::vec3& tr, glm::vec3& tl, float* distance) {
+
+	glm::dvec3 intersection;
+
+	if (gfoil::math::ray_triangle_intersect(ray, bl, br, tr, &intersection)) {
+		*distance = (float)intersection.x;
+		return true;
+	}
+	if (gfoil::math::ray_triangle_intersect(ray, tr, tl, bl, &intersection)) {
+		*distance = (float)intersection.x;
+		return true;
+	}
+
 }

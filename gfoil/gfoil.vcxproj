@@ -158,7 +158,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\deps\GLFW\Include;$(SolutionDir)\deps\Glad\Include;$(SolutionDir)\deps\GLM\Include;$(SolutionDir)\deps\Freetype\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\deps\GLFW\Include;$(SolutionDir)\deps\Glad\Include;$(SolutionDir)\deps\GLM\Include;$(SolutionDir)\deps\Freetype\Include;$(SolutionDir)\deps\STB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>

@@ -1,5 +1,9 @@
 #include "cube.h"
 
+#include <limits>
+
+#include "../../system/system.h"
+
 constexpr int face_indices[6][4] = {
 	{ 2, 3, 7, 6 }, // up
 	{ 0, 2, 6, 4 }, // front
@@ -9,65 +13,136 @@ constexpr int face_indices[6][4] = {
 	{ 0, 4, 5, 1 }  // down
 };
 
-void gfoil::cube::generate(glm::ivec3 position, glm::ivec3 size) {
-	vertices[0] = glm::vec3((float)(position.x + 0)     , (float)(position.y + 0)     , (float)(position.z + 0)     );
-	vertices[1] = glm::vec3((float)(position.x + 0)     , (float)(position.y + 0)     , (float)(position.z + size.z));
-	vertices[2] = glm::vec3((float)(position.x + 0)     , (float)(position.y + size.y), (float)(position.z + 0)     );
-	vertices[3] = glm::vec3((float)(position.x + 0)     , (float)(position.y + size.y), (float)(position.z + size.z));
-	vertices[4] = glm::vec3((float)(position.x + size.x), (float)(position.y + 0)     , (float)(position.z + 0)     );
-	vertices[5] = glm::vec3((float)(position.x + size.x), (float)(position.y + 0)     , (float)(position.z + size.z));
-	vertices[6] = glm::vec3((float)(position.x + size.x), (float)(position.y + size.y), (float)(position.z + 0)     );
-	vertices[7] = glm::vec3((float)(position.x + size.x), (float)(position.y + size.y), (float)(position.z + size.z));
-}
-
-// ---- plane stuff ----
-bool gfoil::cube::in_front_of_camera(generic_3d_camera& camera) {
+// ---- color ----
+bool gfoil::cube::color::visible_by_camera(generic_3d_camera& camera) {
 	for (auto& vertex : this->vertices) {
-		glm::vec3 corrected_point = vertex - camera.position;
-		if (vertex_in_front_of_plane(camera.forward_plane, corrected_point))
+		glm::vec3 corrected_point = vertex.position - camera.position;
+		if (math::vec3_in_front_of_plane(camera.forward_plane, corrected_point))
 			return true;
 	}
 	return false;
 }
-
-bool gfoil::cube::vertex_in_front_of_plane(plane& plane, glm::vec3& vertex) {
-	// if half space >= 0.0
-	if (((plane.normal.x * vertex.x) + (plane.normal.y * vertex.y) + (plane.normal.z * vertex.z) + plane.distance) >= 0.0)
-		return true;
-	return false;
-}
-
-// ---- ray stuff ----
-bool gfoil::cube::hit_by_ray(ray& ray, int* face_hit, float* distance) {
-	glm::dvec3 intersection;
+bool gfoil::cube::color::hit_by_ray(ray& ray, int* face_hit, float* distance) {
+	*distance = std::numeric_limits<float>::max();
+	float current_hit_distance = 0.0f;
 	bool hit = false;
 
-	// cheack each face for intersection
+	// check each face for intersection
 	for (int i = 0; i < 6; i++) {
-		if (gfoil::math::ray_triangle_intersect(
+		if (math::ray_rect_intersect(
 			ray,
-			vertices[face_indices[i][0]],
-			vertices[face_indices[i][1]],
-			vertices[face_indices[i][2]],
-			&intersection))
+			this->vertices[face_indices[i][0]].position,
+			this->vertices[face_indices[i][1]].position,
+			this->vertices[face_indices[i][2]].position,
+			this->vertices[face_indices[i][3]].position,
+			&current_hit_distance))
 		{
-			*distance = (float)intersection.x;
-			*face_hit = i;
-			hit = true;
-			continue;
-		}
-		if (gfoil::math::ray_triangle_intersect(
-			ray,
-			vertices[face_indices[i][2]],
-			vertices[face_indices[i][3]],
-			vertices[face_indices[i][0]],
-			&intersection))
-		{
-			*distance = (float)intersection.x;
-			*face_hit = i;
-			hit = true;
-			continue;
+			if (current_hit_distance < *distance) {
+				*distance = current_hit_distance;
+				*face_hit = i;
+				hit = true;
+			}
 		}
 	}
+
 	return hit;
+}
+
+// ---- texture ----
+bool gfoil::cube::texture::visible_by_camera(generic_3d_camera& camera) {
+	for (auto& vertex : this->vertices) {
+		glm::vec3 corrected_point = vertex.position - camera.position;
+		if (math::vec3_in_front_of_plane(camera.forward_plane, corrected_point))
+			return true;
+	}
+	return false;
+}
+bool gfoil::cube::texture::hit_by_ray(ray& ray, int* face_hit, float* distance) {
+	*distance = std::numeric_limits<float>::max();
+	float current_hit_distance = 0.0f;
+	bool hit = false;
+
+	// check each face for intersection
+	for (int i = 0; i < 6; i++) {
+		if (math::ray_rect_intersect(
+			ray,
+			this->vertices[face_indices[i][0]].position,
+			this->vertices[face_indices[i][1]].position,
+			this->vertices[face_indices[i][2]].position,
+			this->vertices[face_indices[i][3]].position,
+			&current_hit_distance))
+		{
+			if (current_hit_distance < *distance) {
+				*distance = current_hit_distance;
+				*face_hit = i;
+				hit = true;
+			}
+		}
+	}
+
+	return hit;
+}
+
+// ---- tint ----
+bool gfoil::cube::tint::visible_by_camera(generic_3d_camera& camera) {
+	for (auto& vertex : this->vertices) {
+		glm::vec3 corrected_point = vertex.position - camera.position;
+		if (math::vec3_in_front_of_plane(camera.forward_plane, corrected_point))
+			return true;
+	}
+	return false;
+}
+bool gfoil::cube::tint::hit_by_ray(ray& ray, int* face_hit, float* distance) {
+	*distance = std::numeric_limits<float>::max();
+	float current_hit_distance = 0.0f;
+	bool hit = false;
+
+	// check each face for intersection
+	for (int i = 0; i < 6; i++) {
+		if (math::ray_rect_intersect(
+			ray,
+			this->vertices[face_indices[i][0]].position,
+			this->vertices[face_indices[i][1]].position,
+			this->vertices[face_indices[i][2]].position,
+			this->vertices[face_indices[i][3]].position,
+			&current_hit_distance))
+		{
+			if (current_hit_distance < *distance) {
+				*distance = current_hit_distance;
+				*face_hit = i;
+				hit = true;
+			}
+		}
+	}
+
+	return hit;
+}
+
+// ---- batch renderer ----
+void gfoil::cube::batch_renderer::generate(unsigned int count, vertex::type target_vertex_type, unsigned int index_buffer_id) {
+	this->vertex_type = target_vertex_type;
+	this->renderer.generate(count * 8, primative_type::TRIANGLES, target_vertex_type, index_buffer_id, 8, 36);
+}
+void gfoil::cube::batch_renderer::destroy() {
+	this->renderer.destroy();
+}
+
+void gfoil::cube::batch_renderer::flush() {
+	this->renderer.flush();
+}
+void gfoil::cube::batch_renderer::draw() {
+	this->renderer.draw();
+}
+
+void gfoil::cube::batch_renderer::buffer_data(std::vector<cube::color>& cubes) {
+	if (this->vertex_type != vertex::type::COLOR) { system::log::error("Attempting to buffer incorrect type to cube batch renderer"); };
+	this->renderer.buffer_data(&cubes[0].vertices[0], cubes.size() * 8);
+}
+void gfoil::cube::batch_renderer::buffer_data(std::vector<cube::texture>& cubes) {
+	if (this->vertex_type != vertex::type::COLOR) { system::log::error("Attempting to buffer incorrect type to cube batch renderer"); };
+	this->renderer.buffer_data(&cubes[0].vertices[0], cubes.size() * 8);
+}
+void gfoil::cube::batch_renderer::buffer_data(std::vector<cube::tint>& cubes) {
+	if (this->vertex_type != vertex::type::COLOR) { system::log::error("Attempting to buffer incorrect type to cube batch renderer"); };
+	this->renderer.buffer_data(&cubes[0].vertices[0], cubes.size() * 8);
 }

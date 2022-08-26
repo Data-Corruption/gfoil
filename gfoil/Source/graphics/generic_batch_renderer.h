@@ -14,16 +14,6 @@ namespace gfoil {
 	class generic_batch_renderer {
 	public:
 
-		const enum class primative_type {
-			POINTS = 0,
-			LINES = 1,
-			LINE_LOOP = 2,
-			LINE_STRIP = 3,
-			TRIANGLES = 4,
-			TRIANGLE_STRIP = 5,
-			TRIANGLE_FAN = 6,
-		};
-
 		// ----==== Members ====----
 
 		primative_type primative_type;
@@ -36,8 +26,6 @@ namespace gfoil {
 		unsigned int vertex_group_size;
 		unsigned int indices_per_group;
 
-		bool allow_overflow;
-
 		// ----==== Methods ====----
 
 		/// Count is max number of vertices for each batch, if using an index buffer it must be a multiple of vertex group size.
@@ -48,8 +36,7 @@ namespace gfoil {
 			enum vertex::type vertex,
 			unsigned int index_buffer_id,
 			unsigned int vertex_group_size,
-			unsigned int indices_per_group,
-			bool allow_overflow
+			unsigned int indices_per_group
 		);
 		void destroy();
 
@@ -60,15 +47,15 @@ namespace gfoil {
 		void draw();
 
 		// add to buffer
-		void buffer_data(std::vector<vertex::texture>& vertices);
-		void buffer_data(std::vector<vertex::tint>& vertices);
-		void buffer_data(std::vector<vertex::color>& vertices);
+		void buffer_data(vertex::color* start_of_vertices, unsigned int count);
+		void buffer_data(vertex::texture* start_of_vertices, unsigned int count);
+		void buffer_data(vertex::tint* start_of_vertices, unsigned int count);
 
 	private:
 
+		std::vector<vertex::color> data_color;
 		std::vector<vertex::texture> data_texture;
 		std::vector<vertex::tint> data_tint;
-		std::vector<vertex::color> data_color;
 
 		buffer_array_object bao;
 		buffer vertex_buffer;

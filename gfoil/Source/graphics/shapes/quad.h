@@ -45,25 +45,22 @@ namespace gfoil {
 		public:
 			vertex::type vertex_type;
 
-			void generate(vertex::type target_vertex_type);
-
+			// count is max number of quads per batch
+			void generate(unsigned int count, vertex::type target_vertex_type, unsigned int index_buffer_id);
 			void destroy();
 
 			// sends buffer to gpu
 			void flush();
-
 			// draws most recent flush
 			void draw();
 
 			// add to buffer
-			void buffer_data(std::vector<quad::texture>& vertices);
-			void buffer_data(std::vector<quad::tint>& vertices);
-			void buffer_data(std::vector<quad::color>& vertices);
+			void buffer_data(std::vector<quad::color>& quads);
+			void buffer_data(std::vector<quad::texture>& quads);
+			void buffer_data(std::vector<quad::tint>& quads);
 
 		private:
-
 			generic_batch_renderer renderer;
-
 		};
 
 	};

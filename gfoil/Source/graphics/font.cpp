@@ -59,6 +59,8 @@ void gfoil::font::bind() {
 
 	this->font_shader.bind();
 
+	// position
+
 	// view
 	glm::mat4 view = glm::mat4(1.0f);
 	this->font_shader.set_uniform(this->view_uniform_id, false, view);
@@ -78,6 +80,8 @@ void gfoil::font::bind(generic_2d_camera& target_camera) {
 
 	this->font_shader.bind();
 
+	// position
+	
 	// view
 	this->font_shader.set_uniform(this->view_uniform_id, false, target_camera.view);
 	// projection
@@ -92,6 +96,8 @@ void gfoil::font::bind(generic_2d_camera& target_camera) {
 void gfoil::font::bind(generic_3d_camera& target_camera) {
 
 	this->font_shader.bind();
+
+	// position
 
 	// view
 	this->font_shader.set_uniform(this->view_uniform_id, false, target_camera.view);

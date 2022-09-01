@@ -6,22 +6,20 @@
 #include <glad/glad.h> 
 #include <glm/glm.hpp>
 
-#include "small_types/vertex.h"
-
 #include "cameras/generic_2d_camera.h"
 #include "cameras/generic_3d_camera.h"
 #include "shader.h"
 #include "texture.h"
-#include "buffer_array_object.h"
-#include "generic_batch_renderer.h"
+#include "shapes/quad.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 namespace gfoil {
 
-	/// glyph info and atlas with a batch renderer, all you need to do is bring the vertices ;p batch limit is 10k quads
-	/// atlas and character info is shared. When drawing if no camera is given it draws using 2d screen coords with no offsets
+	/// Glyph info and atlas with a batch renderer, all you need to do is bring the quads.
+	/// When drawing if no camera is given it draws using 2d screen coords with no offsets.
+	/// low_memory_mode: true - 10k quads per batch, false - 40k quads per batch
 	class font {
 	public:
 
@@ -46,13 +44,14 @@ namespace gfoil {
 		static std::vector<character_set> character_sets;
 
 		glm::uint projection_uniform_id = 0;
+		glm::uint transform_uniform_id = 0;
 		glm::uint view_uniform_id = 0;
 
 		bool is_monospaced = false;
 		glm::vec2 atlas_size;
 		std::string path = "";
 
-		generic_batch_renderer renderer;
+		quad::batch_renderer renderer;
 		shader font_shader;
 
 		// ----==== Methods ====----
@@ -68,7 +67,7 @@ namespace gfoil {
 		character_info& get_char(char target);
 
 		// batch quad limit is is 10k
-		void buffer(std::vector<vertex::tint>& data);
+		void buffer(std::vector<quad::tint>& data);
 		// send data to gpu
 		void flush();
 		// binds then draws flushed buffer
@@ -76,9 +75,9 @@ namespace gfoil {
 		void draw(generic_2d_camera& target_camera);
 		void draw(generic_3d_camera& target_camera);
 		// all in one, no need to call anything else
-		void draw(std::vector<vertex::tint>& data);
-		void draw(std::vector<vertex::tint>& data, generic_2d_camera& target_camera);
-		void draw(std::vector<vertex::tint>& data, generic_3d_camera& target_camera);
+		void draw(std::vector<quad::tint>& data);
+		void draw(std::vector<quad::tint>& data, generic_2d_camera& target_camera);
+		void draw(std::vector<quad::tint>& data, generic_3d_camera& target_camera);
 
 	private:
 

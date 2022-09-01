@@ -77,7 +77,7 @@ namespace gfoil {
 
 		font* font_renderer = nullptr;
 
-		std::vector<vertex::tint> buffer_data;
+		std::vector<quad::tint> buffer_data;
 
 		// ----==== Constructors / Deconstructor ====----
 

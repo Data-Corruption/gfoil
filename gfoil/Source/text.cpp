@@ -193,11 +193,15 @@ void gfoil::text::build_buffer() {
 		float txcw = c.bitmap_size.x / this->font_renderer->atlas_size.x;
 		float txch = c.bitmap_size.y / this->font_renderer->atlas_size.y;
 
-		//                                     /px           /py                           /tx           /ty   /ta 
-		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y - cs.y, 0.0f), glm::vec3(c.texture_offset,        txch, 1.0f), color }); // bl
-		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y - cs.y, 0.0f), glm::vec3(c.texture_offset + txcw, txch, 1.0f), color }); // br
-		this->buffer_data.push_back({ glm::vec3(cp.x + cs.x, -cp.y,        0.0f), glm::vec3(c.texture_offset + txcw, 0.0f, 1.0f), color }); // tr
-		this->buffer_data.push_back({ glm::vec3(cp.x,        -cp.y,        0.0f), glm::vec3(c.texture_offset,        0.0f, 1.0f), color }); // tl
+		//                            /px          /py                            /tx                      /ty   /ta 
+		vertex::tint bl = { glm::vec3(cp.x,        -cp.y - cs.y, 0.0f), glm::vec3(c.texture_offset,        txch, 1.0f), color };
+		vertex::tint br = { glm::vec3(cp.x + cs.x, -cp.y - cs.y, 0.0f), glm::vec3(c.texture_offset + txcw, txch, 1.0f), color };
+		vertex::tint tr = { glm::vec3(cp.x + cs.x, -cp.y,        0.0f), glm::vec3(c.texture_offset + txcw, 0.0f, 1.0f), color };
+		vertex::tint tl = { glm::vec3(cp.x,        -cp.y,        0.0f), glm::vec3(c.texture_offset,        0.0f, 1.0f), color };
+
+		quad::tint char_quad = { bl, br, tr, tl };
+
+		this->buffer_data.push_back(char_quad);
 
 	}
 }

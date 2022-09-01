@@ -26,13 +26,16 @@ void gfoil::font::generate(std::string target_path) {
 	this->load_atlas_and_char_set();
 
 	// generate batch renderer
-	renderer.generate(10000 * 4, generic_batch_renderer::primative_type::TRIANGLES, vertex::type::TINTED, generic_index_buffers::quad_10k.id, 4, 6, false);
+	renderer.generate(vertex::type::TINTED);
 
 	// load font shader
 	font_shader.load("font");
 	font_shader.bind();
+
 	view_uniform_id = font_shader.get_uniform_id("u_view");
+	transform_uniform_id = font_shader.get_uniform_id("u_transform");
 	projection_uniform_id = font_shader.get_uniform_id("u_projection");
+
 	font_shader.set_uniform(font_shader.get_uniform_id("u_texture"), (unsigned int)1);
 
 }
@@ -59,7 +62,9 @@ void gfoil::font::bind() {
 
 	this->font_shader.bind();
 
-	// position
+	// transform
+	glm::mat4 transform = glm::mat4(1.0f);
+	this->font_shader.set_uniform(this->transform_uniform_id, false, transform);
 
 	// view
 	glm::mat4 view = glm::mat4(1.0f);
@@ -80,7 +85,11 @@ void gfoil::font::bind(generic_2d_camera& target_camera) {
 
 	this->font_shader.bind();
 
-	// position
+	// transform
+	glm::mat4 transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, glm::vec3(-target_camera.position.x, -target_camera.position.y, 0.0f));
+	transform = glm::scale(transform, glm::vec3(target_camera.zoom, target_camera.zoom, 1.0f));
+	this->font_shader.set_uniform(this->transform_uniform_id, false, transform);
 	
 	// view
 	this->font_shader.set_uniform(this->view_uniform_id, false, target_camera.view);
@@ -97,7 +106,10 @@ void gfoil::font::bind(generic_3d_camera& target_camera) {
 
 	this->font_shader.bind();
 
-	// position
+	// transform
+	glm::mat4 transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, glm::vec3(-target_camera.position.x, -target_camera.position.y, -target_camera.position.z));
+	this->font_shader.set_uniform(this->transform_uniform_id, false, transform);
 
 	// view
 	this->font_shader.set_uniform(this->view_uniform_id, false, target_camera.view);
@@ -119,8 +131,8 @@ gfoil::font::character_info& gfoil::font::get_char(char target) {
 			return character_set.characters[target - 32];
 }
 
-void gfoil::font::buffer(std::vector<vertex::tint>& data) {
-	if (data.size() >= renderer.max_batch_size)
+void gfoil::font::buffer(std::vector<quad::tint>& data) {
+	if (data.size() >= renderer.max_quads_per_batch)
 		system::log::error("Font: Attempting to buffer a vector larger than max batch size!");
 
 	this->renderer.buffer_data(data);
@@ -143,32 +155,32 @@ void gfoil::font::draw(generic_3d_camera& target_camera) {
 	this->renderer.draw();
 }
 
-void gfoil::font::draw(std::vector<vertex::tint>& data) {
-	if (data.size() >= renderer.max_batch_size)
+void gfoil::font::draw(std::vector<quad::tint>& data) {
+	if (data.size() >= renderer.max_quads_per_batch)
 		system::log::error("Font: Attempting to buffer a vector larger than max batch size!");
 
 	this->bind();
-	this->renderer.current_batch_size = 0;
+	this->renderer.renderer.current_batch_size = 0;
 	this->renderer.buffer_data(data);
 	this->renderer.flush();
 	this->renderer.draw();
 }
-void gfoil::font::draw(std::vector<vertex::tint>& data, generic_2d_camera& target_camera) {
-	if (data.size() >= renderer.max_batch_size)
+void gfoil::font::draw(std::vector<quad::tint>& data, generic_2d_camera& target_camera) {
+	if (data.size() >= renderer.max_quads_per_batch)
 		system::log::error("Font: Attempting to buffer a vector larger than max batch size!");
 
 	this->bind(target_camera);
-	this->renderer.current_batch_size = 0;
+	this->renderer.renderer.current_batch_size = 0;
 	this->renderer.buffer_data(data);
 	this->renderer.flush();
 	this->renderer.draw();
 }
-void gfoil::font::draw(std::vector<vertex::tint>& data, generic_3d_camera& target_camera) {
-	if (data.size() >= renderer.max_batch_size)
+void gfoil::font::draw(std::vector<quad::tint>& data, generic_3d_camera& target_camera) {
+	if (data.size() >= renderer.max_quads_per_batch)
 		system::log::error("Font: Attempting to buffer a vector larger than max batch size!");
 
 	this->bind(target_camera);
-	this->renderer.current_batch_size = 0;
+	this->renderer.renderer.current_batch_size = 0;
 	this->renderer.buffer_data(data);
 	this->renderer.flush();
 	this->renderer.draw();

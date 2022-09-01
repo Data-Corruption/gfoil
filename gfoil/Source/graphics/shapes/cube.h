@@ -39,23 +39,24 @@ namespace gfoil {
 		class batch_renderer {
 		public:
 			vertex::type vertex_type;
+			unsigned int max_cubes_per_batch;
 
-			// count is max number of cubes per batch
-			void generate(unsigned int count, vertex::type target_vertex_type, unsigned int index_buffer_id);
-			void destroy();
+			generic_batch_renderer renderer;
+
+			/// low_memory_mode: true - 1.8k cubes per batch, false - 10k cubes per batch
+			void generate(vertex::type target_vertex_type);
+			void generate(unsigned int max_cubes_per_batch, vertex::type target_vertex_type, unsigned int index_buffer_id);
+			void destroy() { this->renderer.destroy(); };
 
 			// sends buffer to gpu
-			void flush();
+			void flush() { this->renderer.flush(); };
 			// draws most recent flush
-			void draw();
+			void draw() { this->renderer.draw(); };
 
 			// add to buffer
 			void buffer_data(std::vector<cube::color>& cubes);
 			void buffer_data(std::vector<cube::texture>& cubes);
 			void buffer_data(std::vector<cube::tint>& cubes);
-
-		private:
-			generic_batch_renderer renderer;
 		};
 
 	};

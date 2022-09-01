@@ -3,6 +3,8 @@
 #include <limits>
 
 #include "../../system/system.h"
+#include "../../config.h"
+#include "../generic_index_buffers.h"
 
 constexpr int face_indices[6][4] = {
 	{ 2, 3, 7, 6 }, // up
@@ -119,30 +121,32 @@ bool gfoil::cube::tint::hit_by_ray(ray& ray, int* face_hit, float* distance) {
 }
 
 // ---- batch renderer ----
-void gfoil::cube::batch_renderer::generate(unsigned int count, vertex::type target_vertex_type, unsigned int index_buffer_id) {
+void gfoil::cube::batch_renderer::generate(vertex::type target_vertex_type) {
 	this->vertex_type = target_vertex_type;
-	this->renderer.generate(count * 8, primative_type::TRIANGLES, target_vertex_type, index_buffer_id, 8, 36);
-}
-void gfoil::cube::batch_renderer::destroy() {
-	this->renderer.destroy();
-}
 
-void gfoil::cube::batch_renderer::flush() {
-	this->renderer.flush();
+	this->max_cubes_per_batch = 10000 * 8;
+	if (config::data["low_memory_mode"] == "true") 
+		this->max_cubes_per_batch = 1800 * 8;
+	
+	this->renderer.generate(this->max_cubes_per_batch, primative_type::TRIANGLES, target_vertex_type, generic_index_buffers::cube.id, 8, 36);
 }
-void gfoil::cube::batch_renderer::draw() {
-	this->renderer.draw();
+void gfoil::cube::batch_renderer::generate(unsigned int max_cubes_per_batch, vertex::type target_vertex_type, unsigned int index_buffer_id) {
+	this->vertex_type = target_vertex_type;
+
+	this->max_cubes_per_batch = max_cubes_per_batch * 8;
+
+	this->renderer.generate(this->max_cubes_per_batch, primative_type::TRIANGLES, target_vertex_type, index_buffer_id, 8, 36);
 }
 
 void gfoil::cube::batch_renderer::buffer_data(std::vector<cube::color>& cubes) {
 	if (this->vertex_type != vertex::type::COLOR) { system::log::error("Attempting to buffer incorrect type to cube batch renderer"); };
-	this->renderer.buffer_data(&cubes[0].vertices[0], cubes.size() * 8);
+	this->renderer.buffer_data(&cubes[0].vertices[0], (unsigned int)cubes.size() * 8);
 }
 void gfoil::cube::batch_renderer::buffer_data(std::vector<cube::texture>& cubes) {
 	if (this->vertex_type != vertex::type::COLOR) { system::log::error("Attempting to buffer incorrect type to cube batch renderer"); };
-	this->renderer.buffer_data(&cubes[0].vertices[0], cubes.size() * 8);
+	this->renderer.buffer_data(&cubes[0].vertices[0], (unsigned int)cubes.size() * 8);
 }
 void gfoil::cube::batch_renderer::buffer_data(std::vector<cube::tint>& cubes) {
 	if (this->vertex_type != vertex::type::COLOR) { system::log::error("Attempting to buffer incorrect type to cube batch renderer"); };
-	this->renderer.buffer_data(&cubes[0].vertices[0], cubes.size() * 8);
+	this->renderer.buffer_data(&cubes[0].vertices[0], (unsigned int)cubes.size() * 8);
 }

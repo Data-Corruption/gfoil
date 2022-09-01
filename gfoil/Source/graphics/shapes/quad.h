@@ -44,23 +44,24 @@ namespace gfoil {
 		class batch_renderer {
 		public:
 			vertex::type vertex_type;
+			unsigned int max_quads_per_batch;
 
-			// count is max number of quads per batch
-			void generate(unsigned int count, vertex::type target_vertex_type, unsigned int index_buffer_id);
-			void destroy();
+			generic_batch_renderer renderer;
+
+			/// low_memory_mode: true - 10k quads per batch, false - 40k quads per batch
+			void generate(vertex::type target_vertex_type);
+			void generate(unsigned int max_quads_per_batch, vertex::type target_vertex_type, unsigned int index_buffer_id);
+			void destroy() { this->renderer.destroy(); };
 
 			// sends buffer to gpu
-			void flush();
+			void flush() { this->renderer.flush(); };
 			// draws most recent flush
-			void draw();
+			void draw() { this->renderer.draw(); };
 
 			// add to buffer
 			void buffer_data(std::vector<quad::color>& quads);
 			void buffer_data(std::vector<quad::texture>& quads);
 			void buffer_data(std::vector<quad::tint>& quads);
-
-		private:
-			generic_batch_renderer renderer;
 		};
 
 	};

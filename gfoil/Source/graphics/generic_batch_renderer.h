@@ -47,9 +47,9 @@ namespace gfoil {
 		void draw();
 
 		// add to buffer
-		void buffer_data(vertex::color* start_of_vertices, unsigned int count);
-		void buffer_data(vertex::texture* start_of_vertices, unsigned int count);
-		void buffer_data(vertex::tint* start_of_vertices, unsigned int count);
+		void buffer_data(vertex::color* start_of_vertices, unsigned int count); // count = number of vertices not bytes
+		void buffer_data(vertex::texture* start_of_vertices, unsigned int count); // count = number of vertices not bytes
+		void buffer_data(vertex::tint* start_of_vertices, unsigned int count); // count = number of vertices not bytes
 
 	private:
 

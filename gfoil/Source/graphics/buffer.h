@@ -37,6 +37,7 @@ public:
 	types type;
 
 	unsigned int id = 0;
+	unsigned int last_tail_in_bytes = 0;
 
 	// ----==== Methods ====----
 
@@ -52,7 +53,7 @@ public:
 	///	 Static = write one time, draw many times
 	///	 Dynamic = write and draw many times
 	///	 Stream = write and draw once
-	/// Max size of data for index buffer is 32k cause short range
+	/// Max size of data for indexed data is 65k due to unsigned short range
 	void buffer_data(unsigned int size_of_data_in_bytes, void* start_of_data, draw_types draw_type);
 	// use buffer_data() with nullptr to allocate enough memory before calling this
 	void buffer_sub_data(unsigned int offset_into_buffer, unsigned int size_of_data_in_bytes, void* start_of_data);

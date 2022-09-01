@@ -40,13 +40,13 @@ void buffer::buffer_data(unsigned int size_of_data_in_bytes, void* start_of_data
 	if (bound_buffer_ID != this->id)
 		system::log::error("Attempting to buffer_data() for an unbound buffer!");
 	glBufferData((GLenum)this->type, size_of_data_in_bytes, start_of_data, (GLenum)draw_type);
+	this->last_tail_in_bytes = size_of_data_in_bytes;
 }
 void buffer::buffer_sub_data(unsigned int offset_into_buffer, unsigned int size_of_data_in_bytes, void* start_of_data) {
 	if (bound_buffer_ID != this->id)
 		system::log::error("Attempting to buffer_sub_data() for an unbound buffer!");
-	if (size_of_data_in_bytes == 0)
-		return;
 	glBufferSubData((GLenum)this->type, offset_into_buffer, size_of_data_in_bytes, start_of_data);
+	this->last_tail_in_bytes = offset_into_buffer + size_of_data_in_bytes;
 }
 
 void buffer::enable_vertex_attributes(std::vector<unsigned int> positions) {

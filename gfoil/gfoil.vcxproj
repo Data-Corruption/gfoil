@@ -197,6 +197,7 @@
     <ClInclude Include="Source\graphics\buffer_array_object.h" />
     <ClInclude Include="Source\graphics\cameras\generic_2d_camera.h" />
     <ClInclude Include="Source\graphics\cameras\generic_3d_camera.h" />
+    <ClInclude Include="Source\graphics\generic_buffer_pool_renderer.h" />
     <ClInclude Include="Source\graphics\shapes\cube.h" />
     <ClInclude Include="Source\graphics\culling.h" />
     <ClInclude Include="Source\graphics\depth_test.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="Source\graphics\buffer_array_object.cpp" />
     <ClCompile Include="Source\graphics\cameras\generic_2d_camera.cpp" />
     <ClCompile Include="Source\graphics\cameras\generic_3d_camera.cpp" />
+    <ClCompile Include="Source\graphics\generic_buffer_pool_renderer.cpp" />
     <ClCompile Include="Source\graphics\shapes\cube.cpp" />
     <ClCompile Include="Source\graphics\culling.cpp" />
     <ClCompile Include="Source\graphics\depth_test.cpp" />

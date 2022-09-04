@@ -30,7 +30,7 @@ namespace gfoil {
 		void reaload_file();
 
 		// gets size from opengl, very $$$ maybe ?
-		glm::ivec2 update_size();
+		void update_size();
 
 		unsigned int get_id();
 

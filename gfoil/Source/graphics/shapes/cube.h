@@ -43,7 +43,7 @@ namespace gfoil {
 
 			generic_batch_renderer renderer;
 
-			/// low_memory_mode: true - 1.8k cubes per batch, false - 10k cubes per batch
+			// max 1.8k cubes per batch
 			void generate(vertex::type target_vertex_type);
 			void generate(unsigned int max_cubes_per_batch, vertex::type target_vertex_type, unsigned int index_buffer_id);
 			void destroy() { this->renderer.destroy(); };

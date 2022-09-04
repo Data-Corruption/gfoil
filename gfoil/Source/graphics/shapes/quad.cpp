@@ -91,11 +91,7 @@ bool gfoil::quad::tint::hit_by_ray(ray& ray, float* distance) {
 // ---- batch renderer ----
 void gfoil::quad::batch_renderer::generate(vertex::type target_vertex_type) {
 	this->vertex_type = target_vertex_type;
-
-	this->max_quads_per_batch = 40000 * 4;
-	if (config::data["low_memory_mode"] == "true")
-		this->max_quads_per_batch = 10000 * 4;
-
+	this->max_quads_per_batch = 10000 * 4;
 	this->renderer.generate(this->max_quads_per_batch, primative_type::TRIANGLES, target_vertex_type, generic_index_buffers::quad.id, 4, 6);
 }
 void gfoil::quad::batch_renderer::generate(unsigned int max_quads_per_batch, vertex::type target_vertex_type, unsigned int index_buffer_id) {

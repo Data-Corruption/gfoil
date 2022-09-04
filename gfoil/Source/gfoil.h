@@ -16,6 +16,8 @@
 
 #include "graphics/small_types/ray.h"
 #include "graphics/small_types/plane.h"
+#include "graphics/small_types/vertex.h"
+
 #include "math.h"
 
 #include "graphics/culling.h"
@@ -29,6 +31,8 @@
 #include "graphics/buffer.h"
 #include "graphics/generic_index_buffers.h"
 #include "graphics/generic_batch_renderer.h"
+#include "graphics/shapes/quad.h"
+#include "graphics/shapes/cube.h"
 #include "graphics/font.h"
 
 #include "text.h"

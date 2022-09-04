@@ -52,10 +52,8 @@ void gfoil::generic_2d_camera::update() {
 
 	// view
 	view = glm::mat4(1.0f);
-	view = glm::scale(view, glm::vec3(zoom, zoom, 1.0f));
-
 	// projection
-	glm::mat4 projection = math::ortho(-window_half.x, window_half.x, -window_half.y, window_half.y, -1.0f, 1.0f);
+	projection = math::ortho(-window_half.x, window_half.x, -window_half.y, window_half.y, -1.0f, 1.0f);
 
 }
 

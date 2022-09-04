@@ -129,6 +129,8 @@ gfoil::font::character_info& gfoil::font::get_char(char target) {
 	for (auto& character_set : character_sets)
 		if (character_set.atlas.get_id() == cached_atlas_id)
 			return character_set.characters[target - 32];
+
+	system::log::error("issue getting character info");
 }
 
 void gfoil::font::buffer(std::vector<quad::tint>& data) {

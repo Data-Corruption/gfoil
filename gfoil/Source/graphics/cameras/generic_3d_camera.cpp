@@ -88,6 +88,9 @@ void gfoil::generic_3d_camera::update_position() {
 	if (input::keys[VK_LSHIFT])
 		max_velocity *= 2.0f;
 
+	if (x_change && y_change)
+		max_velocity = max_velocity / 2;
+
 	velocity.x = std::clamp(velocity.x, -max_velocity, max_velocity);
 	velocity.y = std::clamp(velocity.y, -max_velocity, max_velocity);
 	velocity.z = std::clamp(velocity.z, -max_velocity, max_velocity);

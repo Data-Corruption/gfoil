@@ -94,7 +94,7 @@ void gfoil::texture::reaload_file() {
 			texture.load_file(this->size);
 }
 
-glm::ivec2 gfoil::texture::update_size() {
+void gfoil::texture::update_size() {
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &this->size.x);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &this->size.y);
 }

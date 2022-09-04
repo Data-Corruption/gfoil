@@ -84,4 +84,6 @@ bool gfoil::math::ray_rect_intersect(ray& ray, glm::vec3& bl, glm::vec3& br, glm
 		return true;
 	}
 
+	return false;
+
 }

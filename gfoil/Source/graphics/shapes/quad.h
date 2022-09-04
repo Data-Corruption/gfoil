@@ -48,7 +48,7 @@ namespace gfoil {
 
 			generic_batch_renderer renderer;
 
-			/// low_memory_mode: true - 10k quads per batch, false - 40k quads per batch
+			/// max 10k quads per batch
 			void generate(vertex::type target_vertex_type);
 			void generate(unsigned int max_quads_per_batch, vertex::type target_vertex_type, unsigned int index_buffer_id);
 			void destroy() { this->renderer.destroy(); };

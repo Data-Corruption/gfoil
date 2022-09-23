@@ -40,6 +40,7 @@ void gfoil::init(
 	input::is_cursor_enabled = true;
 	glfwSetScrollCallback(window::handle, [](GLFWwindow* window, double xoffset, double yoffset) {
 		input::mouse::wheel_offset = glm::dvec2(xoffset, yoffset);
+		input::mouse::wheel_event = true;
 	});
 
 	// generate index buffers

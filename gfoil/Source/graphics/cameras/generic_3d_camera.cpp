@@ -4,7 +4,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../../system/input.h"
+#include "../../gfoil.hpp"
 
 const glm::vec3 world_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -26,12 +26,12 @@ void gfoil::generic_3d_camera::destroy() {
 
 void gfoil::generic_3d_camera::update() {
 
-	if (input::is_cursor_enabled && !window::is_resized())
+	if (cursor::enabled && !window::is_resized())
 		return;
 
 	update_position();
 
-	if (input::mouse::window_position != last_mouse_position)
+	if (cursor::window_position != last_mouse_position)
 		update_rotation();
 
 	forward_plane.calculate(glm::vec3(0) - right, right, up);
@@ -45,11 +45,11 @@ void gfoil::generic_3d_camera::update() {
 void gfoil::generic_3d_camera::update_position() {
 	bool x_change = false, y_change = false, z_change = false;
 
-	if (input::keys[0x44]) { // d
+	if (glfwGetKey(window::handle, GLFW_KEY_D) == GLFW_PRESS) {
 		velocity.x += velocity_change_per_tick;
 		x_change = true;
 	}
-	if (input::keys[0x41]) { // a
+	if (glfwGetKey(window::handle, GLFW_KEY_A) == GLFW_PRESS) {
 		velocity.x -= velocity_change_per_tick;
 		if (x_change) {
 			x_change = false;
@@ -57,12 +57,12 @@ void gfoil::generic_3d_camera::update_position() {
 			x_change = true;
 		}
 	}
-
-	if (input::keys[VK_SPACE]) { // space
+	
+	if (glfwGetKey(window::handle, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		velocity.y += velocity_change_per_tick;
 		y_change = true;
 	}
-	if (input::keys[VK_LCONTROL]) { // ctrl
+	if (glfwGetKey(window::handle, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 		velocity.y -= velocity_change_per_tick;
 		if (y_change) {
 			y_change = false;
@@ -71,11 +71,11 @@ void gfoil::generic_3d_camera::update_position() {
 		}
 	}
 
-	if (input::keys[0x57]) { // w
+	if (glfwGetKey(window::handle, GLFW_KEY_W) == GLFW_PRESS) {
 		velocity.z += velocity_change_per_tick;
 		z_change = true;
 	}
-	if (input::keys[0x53]) { // s
+	if (glfwGetKey(window::handle, GLFW_KEY_S) == GLFW_PRESS) {
 		velocity.z -= velocity_change_per_tick;
 		if (z_change) {
 			z_change = false;
@@ -85,7 +85,7 @@ void gfoil::generic_3d_camera::update_position() {
 	}
 
 	float max_velocity = 0.12f;
-	if (input::keys[VK_LSHIFT])
+	if (glfwGetKey(window::handle, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		max_velocity *= 2.0f;
 
 	if (x_change && y_change)
@@ -107,14 +107,14 @@ void gfoil::generic_3d_camera::update_position() {
 }
 void gfoil::generic_3d_camera::update_rotation() {
 	if (first_mouse) {
-		last_mouse_position = input::mouse::window_position;
+		last_mouse_position = cursor::window_position;
 		first_mouse = false;
-	} else if (last_mouse_position == input::mouse::window_position) {
+	} else if (last_mouse_position == cursor::window_position) {
 		return;
 	}
 
-	mouse_offset = input::mouse::window_position - last_mouse_position;
-	last_mouse_position = input::mouse::window_position;
+	mouse_offset = cursor::window_position - last_mouse_position;
+	last_mouse_position = cursor::window_position;
 
 	// prevent yaw from becoming a fat fucking whore
 	rotation.x = glm::mod(rotation.x + (mouse_offset.x * rotate_speed), 360.0f);

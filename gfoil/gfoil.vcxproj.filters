@@ -15,25 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\gfoil.h">
+    <ClInclude Include="Source\gfoil.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\convert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\system\system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\buffer_array_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\graphics\font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\generic_batch_renderer.h">
@@ -51,19 +42,10 @@
     <ClInclude Include="Source\graphics\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\system\input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\graphics\generic_index_buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\small_types\vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\system\Win64\CDialogEventHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\graphics\cameras\generic_3d_camera.h">
@@ -99,15 +81,27 @@
     <ClInclude Include="Source\graphics\generic_buffer_pool_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\config.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\string_addons.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\system.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Win64\CDialogEventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\convert.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Win64\CDialogEventHandler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\system\system.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\gfoil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\convert.cpp">
@@ -117,9 +111,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\graphics\font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\generic_batch_renderer.cpp">
@@ -134,19 +125,10 @@
     <ClCompile Include="Source\graphics\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\system\input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\generic_index_buffers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\system\Win64\CDialogEventHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\deps\Glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\graphics\cameras\generic_3d_camera.cpp">
@@ -176,9 +158,14 @@
     <ClCompile Include="Source\graphics\generic_buffer_pool_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\Shaders\font\fragment.glsl" />
-    <None Include="Source\Shaders\font\vertex.glsl" />
+    <ClCompile Include="Source\string_addons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Win64\CDialogEventHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

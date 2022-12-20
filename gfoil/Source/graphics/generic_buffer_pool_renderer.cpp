@@ -2,7 +2,7 @@
 
 #include<algorithm>
 
-#include "../system/system.h"
+#include "../system.hpp"
 
 void gfoil::generic_buffer_pool_renderer::generate(
 	unsigned int max_verticies_per_draw,
@@ -35,7 +35,7 @@ void gfoil::generic_buffer_pool_renderer::generate(
 
 	this->gen_buff(this->max_verticies_per_draw, this->draw_buffer);
 
-	for (int x = 0; x < starting_buffer_count; x++) {
+	for (unsigned int x = 0; x < starting_buffer_count; x++) {
 		this->buffer_pool.emplace_back();
 		this->gen_buff(this->max_verticies_per_buffer, this->buffer_pool.back().buffer);
 	}
@@ -101,7 +101,7 @@ void gfoil::generic_buffer_pool_renderer::resize_pool(unsigned int& new_size) {
 		this->buffer_pool.resize(new_size);
 		this->buffer_pool.shrink_to_fit();
 	} else {
-		int number_of_new_buffers = new_size - this->buffer_pool.size();
+		int number_of_new_buffers = new_size - (int)this->buffer_pool.size();
 		for (int x = 0; x < number_of_new_buffers; x++) {
 			this->buffer_pool.emplace_back();
 			this->gen_buff(this->max_verticies_per_buffer, this->buffer_pool.back().buffer);

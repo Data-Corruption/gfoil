@@ -1,4 +1,4 @@
-#include "convert.h"
+#include "convert.hpp"
 
 std::string convert::utf16_to_utf8(const std::wstring& wstring) {
 	if (wstring.empty())
@@ -22,10 +22,6 @@ std::wstring convert::utf8_to_utf16(const std::string& string) {
 	return result;
 }
 
-glm::vec3 convert::hex_color_to_vec3(const std::string& hex) {
-	return glm::vec3(0.0, 0.0, 0.0);
-}
-
-std::string convert::vec3_color_to_hex_string(glm::vec3& color) {
-	return "";
+std::wstring convert::to_wstring(const std::string& string) {
+	return std::wstring(string.begin(), string.end());
 }

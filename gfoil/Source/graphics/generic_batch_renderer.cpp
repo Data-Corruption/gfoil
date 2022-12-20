@@ -1,6 +1,6 @@
 #include "generic_batch_renderer.h"
 
-#include "../system/system.h"
+#include "../system.hpp"
 
 void gfoil::generic_batch_renderer::generate(
 	unsigned int count,

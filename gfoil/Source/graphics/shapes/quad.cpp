@@ -1,7 +1,6 @@
 #include "quad.h"
 
-#include "../../system/system.h"
-#include "../../config.h"
+#include "../../system.hpp"
 #include "../generic_index_buffers.h"
 
 // ---- color quad ----

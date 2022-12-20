@@ -8,7 +8,7 @@ namespace gfoil {
 
 		/// bl, br, tr, tr, tl, bl 10k quads
 		static buffer quad;
-		/// bl, br, tr, tr, tl, bl 1.8k cubes
+		/// bl, br, tr, tr, tl, bl, up, front, left, bacl, right, down 1.8k cubes
 		static buffer cube;
 
 		static void generate_index_buffers();

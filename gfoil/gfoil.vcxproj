@@ -78,10 +78,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>D:\Code\Deps\GFOIL\Libs\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <CustomBuildBeforeTargets>Build</CustomBuildBeforeTargets>
+    <OutDir>D:\Code\Deps\GFOIL\Libs\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,7 +128,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\deps\GLFW\Include;$(SolutionDir)\deps\Glad\Include;$(SolutionDir)\deps\GLM\Include;$(SolutionDir)\deps\Freetype\Include;$(SolutionDir)\deps\STB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Code\Deps\GLFW\Include;D:\Code\Deps\Glad\Include;D:\Code\Deps\GLM\Include;D:\Code\Deps\Freetype\Include;D:\Code\Deps\STB\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -138,13 +140,14 @@
       <AdditionalDependencies>glfw3_mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)\deps\GLFW\Libs;$(SolutionDir)\deps\Freetype\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Code\Deps\GLFW\Libs;D:\Code\Deps\Freetype\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "C:\Users\mrmat\Desktop\Code\gfoil\build_include.ps1"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "C:\Users\mrmat\Desktop\Code\gfoil\build_include.ps1"</Command>
+      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "D:\Code\gfoil\build_include.ps1"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -158,8 +161,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\deps\GLFW\Include;$(SolutionDir)\deps\Glad\Include;$(SolutionDir)\deps\GLM\Include;$(SolutionDir)\deps\Freetype\Include;$(SolutionDir)\deps\STB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>D:\Code\Deps\GLFW\Include;D:\Code\Deps\Glad\Include;D:\Code\Deps\GLM\Include;D:\Code\Deps\STB\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -169,17 +172,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3_mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_mt.lib;shlwapi.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)\deps\GLFW\Libs;$(SolutionDir)\deps\Freetype\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Code\Deps\GLFW\Libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
       <Command>
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "C:\Users\mrmat\Desktop\Code\gfoil\build_include.ps1"</Command>
+      <Command>PowerShell.exe -ExecutionPolicy Unrestricted -command "D:\Code\gfoil\build_include.ps1"</Command>
       <Message>Generating Library Include</Message>
     </PreBuildEvent>
     <CustomBuildStep>
@@ -192,6 +196,8 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\config.hpp" />
+    <ClInclude Include="Source\convert.hpp" />
     <ClInclude Include="Source\graphics\blending.h" />
     <ClInclude Include="Source\graphics\buffer.h" />
     <ClInclude Include="Source\graphics\buffer_array_object.h" />
@@ -211,18 +217,15 @@
     <ClInclude Include="Source\graphics\small_types\ray.h" />
     <ClInclude Include="Source\graphics\small_types\vertex.h" />
     <ClInclude Include="Source\graphics\window.h" />
-    <ClInclude Include="Source\config.h" />
     <ClInclude Include="Source\gmath.h" />
-    <ClInclude Include="Source\system\input.h" />
+    <ClInclude Include="Source\string_addons.hpp" />
     <ClInclude Include="Source\convert.h" />
-    <ClInclude Include="Source\gfoil.h" />
-    <ClInclude Include="Source\system\system.h" />
-    <ClInclude Include="Source\graphics\font.h" />
-    <ClInclude Include="Source\system\Win64\CDialogEventHandler.h" />
-    <ClInclude Include="Source\text.h" />
+    <ClInclude Include="Source\gfoil.hpp" />
+    <ClInclude Include="Source\system.hpp" />
+    <ClInclude Include="Source\Win64\CDialogEventHandler.h" />
+    <ClInclude Include="Source\Win64\CDialogEventHandler.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\deps\Glad\src\glad.c" />
     <ClCompile Include="Source\config.cpp" />
     <ClCompile Include="Source\gfoil.cpp" />
     <ClCompile Include="Source\graphics\blending.cpp" />
@@ -241,16 +244,10 @@
     <ClCompile Include="Source\graphics\texture.cpp" />
     <ClCompile Include="Source\graphics\window.cpp" />
     <ClCompile Include="Source\gmath.cpp" />
-    <ClCompile Include="Source\system\input.cpp" />
-    <ClCompile Include="Source\system\system.cpp" />
+    <ClCompile Include="Source\string_addons.cpp" />
+    <ClCompile Include="Source\system.cpp" />
     <ClCompile Include="Source\convert.cpp" />
-    <ClCompile Include="Source\graphics\font.cpp" />
-    <ClCompile Include="Source\system\Win64\CDialogEventHandler.cpp" />
-    <ClCompile Include="Source\text.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\Shaders\font\fragment.glsl" />
-    <None Include="Source\Shaders\font\vertex.glsl" />
+    <ClCompile Include="Source\Win64\CDialogEventHandler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

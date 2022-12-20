@@ -1,8 +1,10 @@
-#include "config.h"
+#include "config.hpp"
 
-#include "system/system.h"
+#include "system.hpp"
+#include "string_addons.hpp"
 
-#include "text.h"
+std::string gfoil::config::config_path = "config.txt";
+std::string gfoil::config::default_config = "";
 
 std::unordered_map<std::string, std::string> gfoil::config::data;
 
@@ -12,23 +14,30 @@ void gfoil::config::load() {
 		system::files::write(default_config, config_path);
 	}
 
-	text unparsed_config;
-	system::files::read(unparsed_config.string, config_path);
+	std::string unparsed_config;
+	system::files::read(unparsed_config, config_path);
+
+	if (unparsed_config == "") {
+		system::log::warn("Config file is empty, generating default one.");
+		system::files::write(default_config, config_path);
+		unparsed_config = default_config;
+	}
 
 	// parse data
-	std::vector<text> lines, key_value_pair;
-	unparsed_config.split(lines, '\n');
+	std::vector<std::string> lines, key_value_pair;
+	string_addons::split(lines, { '\n' }, unparsed_config);
 
 	for (auto& line : lines) {
-		line.split(key_value_pair, ':');
-		data[key_value_pair[0].string] = key_value_pair[1].string;
+		string_addons::split(key_value_pair, { '~' }, line);
+		data[key_value_pair[0]] = key_value_pair[1];
 	}
 }
 void gfoil::config::save() {
 	std::string result = "";
 
-	for (auto& entry : data)
-		result.append(entry.first + ':' + entry.second + '\n');
+	for (auto& entry : data) {
+		result.append(entry.first + '~' + entry.second + '\n');
+	}
 	result.pop_back();
 
 	system::files::write(result, config_path);

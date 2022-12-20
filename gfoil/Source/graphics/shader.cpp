@@ -1,13 +1,13 @@
 #include "shader.h"
 
-#include "../system/system.h"
+#include "../system.hpp"
 
-const std::string shader_folder = "app/shaders";
+const std::string shader_folder = "shaders";
 
 // i'm lazy and there are too many methods
 using namespace gfoil;
 
-glm::uint shader::currently_bound_shader;
+glm::uint shader::currently_bound_shader = 0;
 std::vector<shader::loaded_shader> shader::loaded_shaders;
 
 // ----==== shader functions ====----

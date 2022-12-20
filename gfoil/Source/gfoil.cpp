@@ -1,10 +1,17 @@
-#include "gfoil.h"
+#include "gfoil.hpp"
+
+#include <mutex>
+
+glm::dvec2 gfoil::cursor::position;
+glm::dvec2 gfoil::cursor::window_position;
+bool gfoil::cursor::enabled = true;
 
 void gfoil::init(
 	std::string title,
 	std::string icon_path,
 	glm::ivec2 size,
 	glm::ivec2 position,
+	glm::vec4 clear_color,
 	int samples,
 	bool center_window,
 	bool resizable,
@@ -24,6 +31,7 @@ void gfoil::init(
 		icon_path,
 		size,
 		position,
+		clear_color,
 		samples,
 		center_window,
 		resizable,
@@ -34,20 +42,16 @@ void gfoil::init(
 		center_cursor,
 		transparent_buffer
 	);
-
-	// input
-	input::keys.fill(0);
-	input::is_cursor_enabled = true;
-	glfwSetScrollCallback(window::handle, [](GLFWwindow* window, double xoffset, double yoffset) {
-		input::mouse::wheel_offset = glm::dvec2(xoffset, yoffset);
-		input::mouse::wheel_event = true;
-	});
-
+	
 	// generate index buffers
 	generic_index_buffers::generate_index_buffers();
 
 	// opengl
-	glEnable(GL_MULTISAMPLE);
+	if (samples) {
+		glEnable(GL_MULTISAMPLE);
+	}else {
+		glDisable(GL_MULTISAMPLE);
+	}
 
 	// culling
 	glEnable(GL_CULL_FACE);
@@ -72,3 +76,6 @@ void gfoil::shutdown() {
 }
 
 double gfoil::get_time() { return glfwGetTime(); }
+
+void gfoil::cursor::enable_cursor() { glfwSetInputMode(window::handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
+void gfoil::cursor::disable_cursor() { glfwSetInputMode(window::handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED); }

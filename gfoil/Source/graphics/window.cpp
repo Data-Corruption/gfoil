@@ -1,23 +1,23 @@
 #include "window.h"
 
-#include "../system/system.h"
-#include "../config.h"
+#include "../system.hpp"
+#include "../config.hpp"
 
 #include "stb_image.h"
 
-#include "../gfoil.h"
+#include "../gfoil.hpp"
 
 // public members
 
 GLFWwindow* gfoil::window::handle;
 
-std::string gfoil::window::title = "";
-std::string gfoil::window::icon_path = "";
+std::string gfoil::window::title;
+std::string gfoil::window::icon_path;
 
 glm::ivec2 gfoil::window::position;
-glm::ivec2 gfoil::window::size = glm::vec2(1280.0f, 720.0f);
+glm::ivec2 gfoil::window::size;
 
-glm::vec4 gfoil::window::clear_color = { 0.2f, 0.3f, 0.3f, 1.0f };
+glm::vec4 gfoil::window::clear_color;
 
 // private members
 
@@ -45,6 +45,7 @@ void gfoil::window::generate(
 	std::string icon_path,
 	glm::ivec2 size,
 	glm::ivec2 position,
+	glm::vec4 clear_color,
 	int samples,
 	bool center_window,
 	bool resizable,
@@ -56,6 +57,7 @@ void gfoil::window::generate(
 	bool transparent_buffer
 ) {
 
+	window::clear_color = clear_color;
 	window::position = position;
 	window::size = size;
 	window::title = title;
@@ -137,17 +139,29 @@ void gfoil::window::poll_events() {
 		}
 	}
 
+	// react to window variable modifications
 	if (last_position != position)
 		glfwSetWindowPos(handle, position.x, position.y);
 	if (last_title != title)
 		glfwSetWindowTitle(handle, title.c_str());
-
 	resized = false;
 	if (last_size != size) {
 		glfwSetWindowSize(handle, size.x, size.y);
 		glViewport(0, 0, size.x, size.y);
 		resized = true;
 	}
+
+	// get cursor screen coords
+	POINT p;
+	if (GetCursorPos(&p)) {
+		cursor::position = glm::dvec2((double)p.x, (double)p.y);
+	} else {
+		system::log::warn("Failed to get mouse screen coords");
+	}
+	// get cursor window coords
+	if (window::handle)
+		glfwGetCursorPos(window::handle, &cursor::window_position.x, &cursor::window_position.y);
+	
 
 	glfwPollEvents();
 
@@ -192,6 +206,7 @@ bool gfoil::window::is_minimized() { return minimized; }
 bool gfoil::window::is_maximized() { return maximized; }
 bool gfoil::window::is_cursor_enabled() { return cursor; }
 bool gfoil::window::is_asking_to_close()  { return asking_to_close; }
+
 void gfoil::window::close_response(bool value) {
 	if (value) {
 		close_confirm = true;
@@ -203,11 +218,9 @@ void gfoil::window::close_response(bool value) {
 void gfoil::window::init_glfw() {
 	glfwSetErrorCallback([](int error, const char* description) {
 		system::log::error("GLFW: " + static_cast<std::string>(description));
-		});
-
+	});
 	if (!glfwInit())
 		system::log::error("GLFW: failed to initialize!");
-
 	glfw_initialized = true;
 }
 void gfoil::window::init_glad() {
@@ -240,13 +253,6 @@ void gfoil::window::register_callbacks() {
 	});
 	glfwSetWindowCloseCallback(handle, [](GLFWwindow* window) {
 		asking_to_close = true;
-		config::data["window_max"] = std::to_string(maximized);
-		config::data["window_min"] = std::to_string(minimized);
-		config::data["window_pos_x"] = std::to_string(position.x);
-		config::data["window_pos_y"] = std::to_string(position.y);
-		config::data["window_size_x"] = std::to_string(size.x);
-		config::data["window_size_y"] = std::to_string(size.y);
-		config::save();
 		glfwSetWindowShouldClose(window, GLFW_FALSE);
 	});
 }

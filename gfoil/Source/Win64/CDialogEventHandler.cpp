@@ -1,4 +1,4 @@
-#include "CDialogEventHandler.h"
+#include "CDialogEventHandler.hpp"
 
 HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void** ppv) {
     *ppv = NULL;

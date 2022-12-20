@@ -6,7 +6,6 @@
 
 #include "../../gmath.h"
 #include "../window.h"
-#include "../../system/input.h"
 
 void gfoil::generic_2d_camera::generate(glm::vec2 starting_position, float starting_zoom) {
 	position = starting_position;
@@ -19,7 +18,11 @@ void gfoil::generic_2d_camera::destroy() {
 void gfoil::generic_2d_camera::update() {
 
 	// position
-	bool w = input::keys[0x57], a = input::keys[0x41], s = input::keys[0x53], d = input::keys[0x44], x_change = false, y_change = false;
+	bool w = glfwGetKey(window::handle, GLFW_KEY_W) == GLFW_PRESS;
+	bool a = glfwGetKey(window::handle, GLFW_KEY_A) == GLFW_PRESS;
+	bool s = glfwGetKey(window::handle, GLFW_KEY_S) == GLFW_PRESS;
+	bool d = glfwGetKey(window::handle, GLFW_KEY_D) == GLFW_PRESS;
+	bool x_change = false, y_change = false;
 
 	if (a != d) { x_change = true; }
 	if (w != s) { y_change = true; }
@@ -30,7 +33,7 @@ void gfoil::generic_2d_camera::update() {
 	if (d) { velocity.x += velocity_change_per_tick; }
 
 	float max_v = max_velocity;
-	if (input::keys[VK_LSHIFT])
+	if (glfwGetKey(window::handle, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		max_v *= 2.0f;
 
 	velocity.x = std::clamp(velocity.x, -max_v, max_v);

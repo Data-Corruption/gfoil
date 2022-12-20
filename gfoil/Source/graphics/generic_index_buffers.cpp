@@ -1,9 +1,7 @@
 #include "generic_index_buffers.h"
 
-#include "../config.h"
-
-buffer gfoil::generic_index_buffers::quad;
-buffer gfoil::generic_index_buffers::cube;
+gfoil::buffer gfoil::generic_index_buffers::quad;
+gfoil::buffer gfoil::generic_index_buffers::cube;
 
 void gfoil::generic_index_buffers::generate_index_buffers() {
 

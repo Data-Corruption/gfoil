@@ -2,8 +2,7 @@
 
 #include <limits>
 
-#include "../../system/system.h"
-#include "../../config.h"
+#include "../../system.hpp"
 #include "../generic_index_buffers.h"
 
 constexpr int face_indices[6][4] = {

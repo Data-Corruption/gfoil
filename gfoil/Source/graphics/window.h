@@ -31,6 +31,7 @@ namespace gfoil {
 			std::string icon_path,
 			glm::ivec2 size,
 			glm::ivec2 position,
+			glm::vec4 clear_color,
 			int samples,
 			bool center_window,
 			bool resizable,

@@ -1,7 +1,6 @@
 #include "texture.h"
 
-#include "../system/system.h"
-#include "../text.h"
+#include "../system.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -17,15 +16,12 @@ bool gfoil::texture::load(const std::string& path) {
 		for (auto& texture : generated_textures)
 			if ((texture.id == this->cached_id) && (texture.path == path))
 				return false;
-
 		this->unload();
 	}
 	for (auto& texture : generated_textures) {
 		if (texture.path == path) {
-
 			this->cached_id = texture.id;
 			texture.reference_holders++;
-
 			return false;
 		}
 	}
@@ -129,23 +125,27 @@ void gfoil::texture::generated_texture::load_file(glm::ivec2& size) {
 
 	if (path == "")
 		return;
+	if (!system::files::exists(path))
+		system::log::error("Texture file does not exist: " + path);
 
 	int width, height, format;
 
 	unsigned char* data;
 
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load(path.c_str(), &width, &height, &format, 0);
+	stbi_set_flip_vertically_on_load(false);
+	
+	// data = stbi_load(path.c_str(), &width, &height, &format, 0);
+	if (stbi_is_hdr(path.c_str())) {
+		data = (uint8_t*)stbi_loadf(path.c_str(), &width, &height, &format, 4);
+		format = GL_RGBA32F;
+	} else {
+		data = stbi_load(path.c_str(), &width, &height, &format, 4);
+		format = GL_RGBA;
+	}
+
 	size = glm::ivec2(width, height);
 
 	if (data) {
-		switch (format) {
-		case 1: format = GL_RED;  break;
-		case 3: format = GL_RGB;  break;
-		case 4: format = GL_RGBA; break;
-		default: system::log::error("image format error, format = " + std::to_string(format)); break;
-		}
-
 		glBindTexture(GL_TEXTURE_2D, this->id);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

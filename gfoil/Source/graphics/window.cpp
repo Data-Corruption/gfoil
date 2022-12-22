@@ -25,11 +25,10 @@ std::string gfoil::window::last_title;
 glm::ivec2 gfoil::window::last_position;
 glm::ivec2 gfoil::window::last_size;
 
-bool gfoil::window::focused;
+bool gfoil::window::focused = true;
 bool gfoil::window::resized;
 bool gfoil::window::maximized;
 bool gfoil::window::minimized;
-bool gfoil::window::cursor;
 
 bool gfoil::window::asking_to_close = false;
 bool gfoil::window::close_confirm = false;
@@ -204,7 +203,6 @@ bool gfoil::window::is_focused() { return focused; }
 bool gfoil::window::is_resized() { return resized; }
 bool gfoil::window::is_minimized() { return minimized; }
 bool gfoil::window::is_maximized() { return maximized; }
-bool gfoil::window::is_cursor_enabled() { return cursor; }
 bool gfoil::window::is_asking_to_close()  { return asking_to_close; }
 
 void gfoil::window::close_response(bool value) {
@@ -254,5 +252,10 @@ void gfoil::window::register_callbacks() {
 	glfwSetWindowCloseCallback(handle, [](GLFWwindow* window) {
 		asking_to_close = true;
 		glfwSetWindowShouldClose(window, GLFW_FALSE);
+	});
+	glfwSetWindowFocusCallback(handle, [](GLFWwindow* window, int focused) {
+		window::focused = false;
+		if (focused)
+			window::focused = true;
 	});
 }

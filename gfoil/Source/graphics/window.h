@@ -59,7 +59,6 @@ namespace gfoil {
 		static bool is_resized();
 		static bool is_minimized();
 		static bool is_maximized();
-		static bool is_cursor_enabled();
 		static bool is_asking_to_close();
 		// true = close, false = cancel close
 		static void close_response(bool value);
@@ -74,7 +73,6 @@ namespace gfoil {
 		static bool resized;
 		static bool maximized;
 		static bool minimized;
-		static bool cursor;
 
 		static bool asking_to_close;
 		static bool close_confirm;
